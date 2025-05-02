@@ -13,5 +13,6 @@
     <modules>
         <module>binance-feeder</module>
         <module>reddit-feeder</module>
+        <module>common-utils</module>
     </modules>
 </project>
