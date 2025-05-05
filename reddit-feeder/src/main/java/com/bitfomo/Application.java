@@ -7,7 +7,6 @@ import com.bitfomo.domain.port.in.FetchRedditPostsUseCase;
 import com.bitfomo.domain.port.out.ExternalRedditApiPort;
 import com.bitfomo.domain.port.out.PostRepositoryPort;
 
-import okhttp3.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,8 +2,10 @@ package com.bitfomo.adapters.reddit;
 
 import com.bitfomo.domain.model.RedditPost;
 import com.bitfomo.domain.port.out.ExternalRedditApiPort;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -17,12 +19,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class RedditApiAdapter implements ExternalRedditApiPort {
     private static final String TOKEN_URL = "https://www.reddit.com/api/v1/access_token";
     private static final String API_BASE  = "https://oauth.reddit.com";
     private static final MediaType FORM   = MediaType.parse("application/x-www-form-urlencoded");
 
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder().build();
     private final ObjectMapper mapper = new ObjectMapper();
     private final String bearerToken;
     private final String userAgent;
@@ -32,9 +35,10 @@ public class RedditApiAdapter implements ExternalRedditApiPort {
         this.bearerToken = fetchToken(clientId, clientSecret);
     }
 
+    //TODO erase this to just use the public end points of Reddit
     private String fetchToken(String id, String secret) {
         String credential = Credentials.basic(id, secret);
-        RequestBody body = RequestBody.create(FORM, "grant_type=client_credentials");
+        RequestBody body = RequestBody.create("grant_type=client_credentials", FORM);
         Request req = new Request.Builder()
                 .url(TOKEN_URL)
                 .header("Authorization", credential)
