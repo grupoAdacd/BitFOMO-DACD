@@ -34,13 +34,19 @@ public class JdbcPostRepository implements PostRepositoryPort {
     }
 
     private void initDatabase() {
-        try (var conn = DriverManager.getConnection(jdbcUrl);
-             var stmt = conn.createStatement()) {
-            stmt.execute(DDL);
+        try {
+            Class.forName("org.sqlite.JDBC");
+            try (var conn = DriverManager.getConnection(jdbcUrl);
+                 var stmt = conn.createStatement()) {
+                stmt.execute(DDL);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Driver SQLite no encontrado", e);
         } catch (SQLException e) {
             throw new RuntimeException("Error inicializando la base de datos", e);
         }
     }
+
 
     @Override
     public void saveAll(List<RedditPost> posts) {
