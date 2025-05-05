@@ -17,18 +17,16 @@ import java.util.concurrent.TimeUnit;
 
 public class Application {
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
-    private static final List<String> SUBREDDITS = List.of("Bitcoin", "CryptoCurrency", "BitcoinMarkets");
+    private static final List<String> SUBREDDITS = List.of("Bitcoin", "CryptoCurrency", "CryptoMarkets");
     private static final int POST_LIMIT = 50;
     private static final int INITIAL_DELAY_SECONDS = 0;
     private static final int PERIOD_MINUTES = 5;
 
     public static void main(String[] args) {
-        String clientId     = System.getenv("REDDIT_CLIENT_ID");
-        String clientSecret = System.getenv("REDDIT_CLIENT_SECRET");
-        String userAgent    = System.getenv().getOrDefault("REDDIT_USER_AGENT",
-                "java:com.bitfomo:v1.0 (by /u/YourUser)");
+        String userAgent = System.getenv().getOrDefault("REDDIT_USER_AGENT",
+                "java:com.bitfomo:v1.0 (by /u/Shot_Picture8375)");
 
-        ExternalRedditApiPort redditApi = new RedditApiAdapter(clientId, clientSecret, userAgent);
+        ExternalRedditApiPort redditApi = new RedditApiAdapter(userAgent);
         PostRepositoryPort    postRepo  = new JdbcPostRepository("jdbc:sqlite:reddit.db");
 
         FetchRedditPostsUseCase fetchPosts =
