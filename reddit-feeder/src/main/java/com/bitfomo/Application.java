@@ -1,4 +1,3 @@
-// reddit-feeder/src/main/java/com/bitfomo/Application.java
 package com.bitfomo;
 
 import com.bitfomo.adapters.persistence.JdbcPostRepository;
