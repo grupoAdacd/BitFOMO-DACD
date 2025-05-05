@@ -4,14 +4,18 @@ import com.bitfomo.domain.model.RedditPost;
 import com.bitfomo.domain.port.out.PostRepositoryPort;
 
 import java.sql.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+//TODO save oldest to newest
 public class JdbcPostRepository implements PostRepositoryPort {
 
     private static final String DDL = """
         CREATE TABLE IF NOT EXISTS reddit_post (
           id         TEXT PRIMARY KEY,
-          timestamp  INTEGER NOT NULL,
+          timestamp  TEXT    NOT NULL,
           subreddit  TEXT    NOT NULL,
           author     TEXT    NOT NULL,
           title      TEXT    NOT NULL,
@@ -26,6 +30,10 @@ public class JdbcPostRepository implements PostRepositoryPort {
         VALUES (?, ?, ?, ?, ?, ?, ?);
         """;
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter
+            .ofPattern("MM/dd/yyyy hh:mm:ss a")
+            .withZone(ZoneId.systemDefault());
+
     private final String jdbcUrl;
 
     public JdbcPostRepository(String jdbcUrl) {
@@ -36,8 +44,8 @@ public class JdbcPostRepository implements PostRepositoryPort {
     private void initDatabase() {
         try {
             Class.forName("org.sqlite.JDBC");
-            try (var conn = DriverManager.getConnection(jdbcUrl);
-                 var stmt = conn.createStatement()) {
+            try (Connection conn = DriverManager.getConnection(jdbcUrl);
+                 Statement stmt = conn.createStatement()) {
                 stmt.execute(DDL);
             }
         } catch (ClassNotFoundException e) {
@@ -50,13 +58,14 @@ public class JdbcPostRepository implements PostRepositoryPort {
 
     @Override
     public void saveAll(List<RedditPost> posts) {
-        try (var conn = DriverManager.getConnection(jdbcUrl);
-             var ps   = conn.prepareStatement(DML)) {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl);
+             PreparedStatement ps   = conn.prepareStatement(DML)) {
 
             conn.setAutoCommit(false);
-            for (var post : posts) {
+            for (RedditPost post : posts) {
                 ps.setString(1, post.id());
-                ps.setLong(2, post.timestamp().getEpochSecond());
+                String formattedTs = FORMATTER.format(post.timestamp());
+                ps.setString(2, formattedTs);
                 ps.setString(3, post.subreddit());
                 ps.setString(4, post.author());
                 ps.setString(5, post.title());
