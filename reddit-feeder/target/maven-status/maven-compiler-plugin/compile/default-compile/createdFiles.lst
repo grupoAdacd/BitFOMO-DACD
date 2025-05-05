@@ -1,0 +1,8 @@
+com\bitfomo\domain\port\out\ExternalRedditApiPort.class
+com\bitfomo\adapters\persistence\JdbcPostRepository.class
+com\bitfomo\Application.class
+com\bitfomo\domain\model\RedditPost.class
+com\bitfomo\domain\port\out\PostRepositoryPort.class
+com\bitfomo\application\usecase\FetchRedditPostsUseCaseImpl.class
+com\bitfomo\domain\port\in\FetchRedditPostsUseCase.class
+com\bitfomo\adapters\reddit\RedditApiAdapter.class
