@@ -4,7 +4,6 @@ import com.bitfomo.adapters.persistence.JdbcPostRepository;
 import com.bitfomo.adapters.broker.ActiveMqEventPublisher;
 import com.bitfomo.adapters.reddit.RedditApiAdapter;
 import com.bitfomo.application.usecase.FetchRedditPostsUseCaseImpl;
-import com.bitfomo.domain.model.RedditPost;
 import com.bitfomo.domain.port.in.FetchRedditPostsUseCase;
 import com.bitfomo.domain.port.out.ExternalRedditApiPort;
 import com.bitfomo.domain.port.out.EventPublisherPort;
