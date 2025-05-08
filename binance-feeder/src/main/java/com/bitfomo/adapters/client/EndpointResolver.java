@@ -5,6 +5,7 @@ import com.bitfomo.domain.port.EndpointProvider;
 public class EndpointResolver implements EndpointProvider {
     public final String baseUrl;
     public final String specify;
+
     public EndpointResolver(String BaseUrl, String Specify) {
         this.baseUrl = BaseUrl;
         this.specify = Specify;
