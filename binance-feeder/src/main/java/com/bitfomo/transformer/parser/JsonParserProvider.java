@@ -5,5 +5,5 @@ import org.json.*;
 public interface JsonParserProvider {
     JSONObject parseObject() throws JSONException;
     JSONArray parseArray() throws JSONException;
-    JSONArray deserializer(CandlestickData candleStick) throws JSONException;
+    JSONArray serializer(CandlestickData candleStick) throws JSONException;
 }
