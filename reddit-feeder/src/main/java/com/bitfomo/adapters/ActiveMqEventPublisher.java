@@ -2,20 +2,22 @@ package com.bitfomo.adapters;
 
 import com.bitfomo.domain.EventPublisherPort;
 import com.bitfomo.domain.RedditPost;
-import org.apache.activemq.ActiveMQConnectionFactory;
-
-import javax.jms.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import jakarta.jms.*;
 
 public class ActiveMqEventPublisher implements EventPublisherPort {
     private final ConnectionFactory connectionFactory;
-    private final String queueName;
-    private final RedditPostSerializer serializer;
+    private final String topicName;
+    private final ObjectMapper mapper;
 
-    public ActiveMqEventPublisher(String brokerUrl, String queueName) {
+    public ActiveMqEventPublisher(String brokerUrl, String topicName) {
         this.connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
-        this.queueName = queueName;
-        this.serializer = new RedditPostSerializer();
+        this.topicName = topicName;
+        this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule());
     }
 
     @Override
@@ -26,17 +28,20 @@ public class ActiveMqEventPublisher implements EventPublisherPort {
         try {
             connection = connectionFactory.createConnection();
             connection.start();
+
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = session.createQueue(queueName);
-            MessageProducer producer = session.createProducer(queue);
+            Topic topic = session.createTopic(topicName);
+            MessageProducer producer = session.createProducer(topic);
 
-            String json = serializer.serialize(post);
+            String json = mapper.writeValueAsString(post);
+            //System.out.println("JSON enviado: " + json); // Descomentar este log para inspeccionar el JSON
+
             TextMessage message = session.createTextMessage(json);
-
             producer.send(message);
+            System.out.println("Evento enviado al topic: " + topicName);
 
         } catch (JMSException | JsonProcessingException e) {
-            throw new RuntimeException("Error publishing RedditPost to ActiveMQ", e);
+            throw new RuntimeException("Error publicando el RedditPost a ActiveMQ", e);
         } finally {
             if (session != null) {
                 try {
