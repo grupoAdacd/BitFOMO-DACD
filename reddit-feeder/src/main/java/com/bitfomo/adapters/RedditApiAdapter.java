@@ -1,7 +1,7 @@
-package com.bitfomo.adapters.reddit;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.model.RedditPost;
-import com.bitfomo.domain.port.out.ExternalRedditApiPort;
+import com.bitfomo.domain.RedditPost;
+import com.bitfomo.domain.ExternalRedditApiPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.HttpUrl;

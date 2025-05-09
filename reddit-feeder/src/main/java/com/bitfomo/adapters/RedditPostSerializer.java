@@ -1,6 +1,6 @@
-package com.bitfomo.adapters.serialization;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.model.RedditPost;
+import com.bitfomo.domain.RedditPost;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

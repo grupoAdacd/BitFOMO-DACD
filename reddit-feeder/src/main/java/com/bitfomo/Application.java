@@ -1,18 +1,17 @@
 package com.bitfomo;
 
-import com.bitfomo.adapters.persistence.JdbcPostRepository;
-import com.bitfomo.adapters.broker.ActiveMqEventPublisher;
-import com.bitfomo.adapters.reddit.RedditApiAdapter;
-import com.bitfomo.application.usecase.FetchRedditPostsUseCaseImpl;
-import com.bitfomo.domain.port.in.FetchRedditPostsUseCase;
-import com.bitfomo.domain.port.out.ExternalRedditApiPort;
-import com.bitfomo.domain.port.out.EventPublisherPort;
-import com.bitfomo.domain.port.out.PostRepositoryPort;
+import com.bitfomo.adapters.JdbcPostRepository;
+import com.bitfomo.adapters.ActiveMqEventPublisher;
+import com.bitfomo.adapters.RedditApiAdapter;
+import com.bitfomo.application.FetchRedditPostsUseCaseImpl;
+import com.bitfomo.domain.FetchRedditPostsUseCase;
+import com.bitfomo.domain.ExternalRedditApiPort;
+import com.bitfomo.domain.EventPublisherPort;
+import com.bitfomo.domain.PostRepositoryPort;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -33,7 +32,7 @@ public class Application {
 
     public static void main(String[] args) {
         if (args.length < 4) {
-            System.err.println("Usage: java -jar reddit-feeder.jar <userAgent> <jdbcUrl> <brokerUrl> <queueName>");
+            System.err.println("Usage: Did not find <userAgent> <jdbcUrl> <brokerUrl> <queueName>");
             System.exit(1);
         }
 
@@ -59,7 +58,6 @@ public class Application {
             try {
                 fetchPosts.fetchAndPersistPosts();
                 logger.info("Fetch & persist completed successfully");
-                // opcional: mostrar posts con timestamp formateado ...
             } catch (Exception ex) {
                 logger.error("Error in fetchAndPersistPosts", ex);
             }

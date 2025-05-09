@@ -1,10 +1,10 @@
-package com.bitfomo.application.usecase;
+package com.bitfomo.application;
 
-import com.bitfomo.domain.model.RedditPost;
-import com.bitfomo.domain.port.in.FetchRedditPostsUseCase;
-import com.bitfomo.domain.port.out.ExternalRedditApiPort;
-import com.bitfomo.domain.port.out.PostRepositoryPort;
-import com.bitfomo.domain.port.out.EventPublisherPort;
+import com.bitfomo.domain.RedditPost;
+import com.bitfomo.domain.FetchRedditPostsUseCase;
+import com.bitfomo.domain.ExternalRedditApiPort;
+import com.bitfomo.domain.PostRepositoryPort;
+import com.bitfomo.domain.EventPublisherPort;
 
 import java.util.List;
 

@@ -1,8 +1,7 @@
-package com.bitfomo.adapters.broker;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.port.out.EventPublisherPort;
-import com.bitfomo.domain.model.RedditPost;
-import com.bitfomo.adapters.serialization.RedditPostSerializer;
+import com.bitfomo.domain.EventPublisherPort;
+import com.bitfomo.domain.RedditPost;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;

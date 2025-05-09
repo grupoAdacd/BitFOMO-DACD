@@ -1,10 +1,9 @@
-package com.bitfomo.adapters.persistence;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.model.RedditPost;
-import com.bitfomo.domain.port.out.PostRepositoryPort;
+import com.bitfomo.domain.RedditPost;
+import com.bitfomo.domain.PostRepositoryPort;
 
 import java.sql.*;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
