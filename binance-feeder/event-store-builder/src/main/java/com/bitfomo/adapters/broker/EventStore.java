@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class EventStore {
-    private static final String BASE_DIR = "eventstore";
+    private static final String BASE_DIR = "src/main/eventstore";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final ObjectMapper mapper = new ObjectMapper();
 
