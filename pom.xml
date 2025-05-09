@@ -13,5 +13,6 @@
     <modules>
         <module>binance-feeder</module>
         <module>reddit-feeder</module>
+        <module>binance-feeder/event-store-builder</module>
     </modules>
 </project>

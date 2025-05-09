@@ -68,7 +68,7 @@ public class JdbcPostRepository implements PostRepositoryPort {
                 ps.setString(3, post.subreddit());
                 ps.setString(4, post.author());
                 ps.setString(5, post.title());
-                ps.setString(6, post.body());
+                ps.setString(6, post.selftext());
                 if (post.sentimentScore() != null) {
                     ps.setDouble(7, post.sentimentScore());
                 } else {

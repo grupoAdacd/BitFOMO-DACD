@@ -8,7 +8,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -26,7 +25,7 @@ public class RedditApiAdapter implements ExternalRedditApiPort {
     }
 
     @Override
-    public List<RedditPost> fetchLatestPosts(@NotNull List<String> subreddits, int limit) {
+    public List<RedditPost> fetchLatestPosts(List<String> subreddits, int limit) {
         List<RedditPost> posts = new ArrayList<>();
         for (String sub : subreddits) {
             HttpUrl url = HttpUrl.parse(API_BASE + "/r/" + sub + "/new.json")
