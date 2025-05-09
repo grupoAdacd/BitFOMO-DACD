@@ -1,10 +1,9 @@
-package com.bitfomo.adapters.persistence;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.model.RedditPost;
-import com.bitfomo.domain.port.out.PostRepositoryPort;
+import com.bitfomo.domain.RedditPost;
+import com.bitfomo.domain.PostRepositoryPort;
 
 import java.sql.*;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -69,7 +68,7 @@ public class JdbcPostRepository implements PostRepositoryPort {
                 ps.setString(3, post.subreddit());
                 ps.setString(4, post.author());
                 ps.setString(5, post.title());
-                ps.setString(6, post.body());
+                ps.setString(6, post.selftext());
                 if (post.sentimentScore() != null) {
                     ps.setDouble(7, post.sentimentScore());
                 } else {

@@ -1,7 +1,8 @@
 package com.bitfomo.adapters.persistence;
 
-import com.bitfomo.domain.model.RedditPost;
-import com.bitfomo.domain.port.out.PostRepositoryPort;
+import com.bitfomo.adapters.JdbcPostRepository;
+import com.bitfomo.domain.RedditPost;
+import com.bitfomo.domain.PostRepositoryPort;
 import org.junit.jupiter.api.*;
 import java.nio.file.Files;
 import java.nio.file.Path;

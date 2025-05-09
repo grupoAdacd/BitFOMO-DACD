@@ -1,6 +1,5 @@
-package com.bitfomo.domain.port.out;
+package com.bitfomo.domain;
 
-import com.bitfomo.domain.model.RedditPost;
 import java.util.List;
 
 public interface PostRepositoryPort {

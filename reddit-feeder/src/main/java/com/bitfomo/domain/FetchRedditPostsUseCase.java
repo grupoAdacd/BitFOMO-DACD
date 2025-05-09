@@ -1,4 +1,4 @@
-package com.bitfomo.domain.port.in;
+package com.bitfomo.domain;
 
 public interface FetchRedditPostsUseCase {
     void fetchAndPersistPosts();

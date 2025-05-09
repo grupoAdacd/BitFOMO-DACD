@@ -1,7 +1,7 @@
-package com.bitfomo.adapters.reddit;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.model.RedditPost;
-import com.bitfomo.domain.port.out.ExternalRedditApiPort;
+import com.bitfomo.domain.RedditPost;
+import com.bitfomo.domain.ExternalRedditApiPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.HttpUrl;
@@ -14,19 +14,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Implementación simplificada de ExternalRedditApiPort
- * que consulta los endpoints públicos /r/{subreddit}/new.json.
- */
 public class RedditApiAdapter implements ExternalRedditApiPort {
     private static final String API_BASE = "https://www.reddit.com";
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
     private final String userAgent;
 
-    /**
-     * @param userAgent Cadena User-Agent para Reddit (obligatorio para evitar 429)
-     */
     public RedditApiAdapter(String userAgent) {
         this.userAgent = userAgent;
     }
