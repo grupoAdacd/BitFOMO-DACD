@@ -6,7 +6,7 @@ import jakarta.jms.JMSException;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws JMSException, javax.jms.JMSException {
+    public static void main(String[] args) throws JMSException {
         if (args.length < 1) {
             System.err.println("Usage: java -jar event-store-builder.jar <brokerUrl>");
             System.exit(1);

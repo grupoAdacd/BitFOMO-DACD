@@ -2,7 +2,6 @@ package com.bitfomo.adapters.broker;
 
 import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
-
 import java.util.List;
 
 public class MessageReceiver {
@@ -15,16 +14,16 @@ public class MessageReceiver {
         this.url = url;
     }
 
-    public void start() throws JMSException, javax.jms.JMSException {
-        javax.jms.Connection connection = new ActiveMQConnectionFactory(url).createConnection();
+    public void start() throws JMSException {
+        Connection connection = new ActiveMQConnectionFactory(url).createConnection();
         connection.setClientID("EventStoreBuilder");
         connection.start();
 
-        javax.jms.Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
         for (String topicName : topics) {
-            javax.jms.Topic topic = session.createTopic(topicName);
-            javax.jms.TopicSubscriber consumer = session.createDurableSubscriber(topic, topicName + "Subscription");
+            Topic topic = session.createTopic(topicName);
+            TopicSubscriber consumer = session.createDurableSubscriber(topic, topicName + "Subscription");
 
             consumer.setMessageListener(message -> {
                 try {
