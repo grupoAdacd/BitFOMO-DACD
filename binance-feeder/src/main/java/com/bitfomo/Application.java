@@ -35,6 +35,7 @@ public class Application {
                             new Date(kline.getKlineCloseTime()));
                     publisher.publish(kline);
                     System.out.println("Publishing events...");
+
                 } catch (Exception e) {
                     System.err.println("Error Publishing/Saving events..." + e);
                 }
