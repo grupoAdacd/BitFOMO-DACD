@@ -1,8 +1,6 @@
-package com.bitfomo.adapters.provider;
+package com.bitfomo.adapters;
 
 
-
-import com.bitfomo.adapters.client.EndpointResolver;
 
 import java.io.IOException;
 import java.net.URI;

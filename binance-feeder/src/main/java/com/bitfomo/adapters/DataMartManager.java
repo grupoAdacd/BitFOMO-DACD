@@ -1,4 +1,4 @@
-package com.bitfomo.adapters.persistence.manager;
+package com.bitfomo.adapters;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

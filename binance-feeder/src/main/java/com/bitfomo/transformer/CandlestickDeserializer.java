@@ -1,7 +1,6 @@
 package com.bitfomo.transformer;
 
-import com.bitfomo.transformer.parser.JsonDataParser;
-import com.bitfomo.domain.model.CandlestickData;
+import com.bitfomo.domain.CandlestickData;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package com.bitfomo.domain.port;
+package com.bitfomo.domain;
 
 public interface EndpointProvider {
     String createApiUrl();

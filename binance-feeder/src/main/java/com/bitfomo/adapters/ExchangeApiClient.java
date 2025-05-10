@@ -1,10 +1,9 @@
-package com.bitfomo.adapters.client;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.model.CandlestickData;
-import com.bitfomo.transformer.parser.JsonDataParser;
-import com.bitfomo.adapters.persistence.CandlestickDBPersistence;
+import com.bitfomo.domain.CandlestickData;
+import com.bitfomo.transformer.JsonDataParser;
 import com.bitfomo.transformer.CandlestickDeserializer;
-import com.bitfomo.application.usecase.ExchangeDataFetcher;
+import com.bitfomo.application.ExchangeDataFetcher;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

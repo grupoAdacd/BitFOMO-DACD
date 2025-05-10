@@ -1,6 +1,6 @@
-package com.bitfomo.adapters.client;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.port.EndpointProvider;
+import com.bitfomo.domain.EndpointProvider;
 
 public class EndpointResolver implements EndpointProvider {
     public final String baseUrl;

@@ -1,6 +1,6 @@
-package com.bitfomo.application.usecase;
+package com.bitfomo.application;
 
-import com.bitfomo.adapters.persistence.manager.DatabaseManager;
+import com.bitfomo.adapters.DatabaseManager;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
