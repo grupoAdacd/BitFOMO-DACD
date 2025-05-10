@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DataStoreManager {
+public class DatabaseManager {
 
     private static final String DATABASE_URL = "jdbc:sqlite:src/main/database/events.db";
 
