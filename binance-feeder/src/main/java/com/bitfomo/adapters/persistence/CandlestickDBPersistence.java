@@ -1,5 +1,6 @@
-package com.bitfomo.adapters.persistence.manager;
+package com.bitfomo.adapters.persistence;
 
+import com.bitfomo.adapters.persistence.manager.DatabaseManager;
 import com.bitfomo.domain.model.CandlestickData;
 
 import java.sql.Connection;
@@ -8,10 +9,10 @@ import java.text.SimpleDateFormat;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
-public class MarketDataWriter {
+public class CandlestickDBPersistence {
     private long lastKlineIntroduced;
     public void insertEvent(CandlestickData binanceKline) {
-        try (Connection conn = DriverManager.getConnection(DataStoreManager.getDatabaseUrl())) {
+        try (Connection conn = DriverManager.getConnection(DatabaseManager.getDatabaseUrl())) {
             String sql = "INSERT INTO BinanceEvents (Kline_Open_Time, open_price, high_price, low_price, close_price, volume, Kline_Close_Time, quote_asset_volume, number_of_trades) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
