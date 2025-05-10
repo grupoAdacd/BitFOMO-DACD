@@ -29,10 +29,10 @@ public class MessageReceiver {
                 try {
                     if (message instanceof TextMessage textMessage) {
                         eventStore.saveEvent(topicName, textMessage.getText());
-                        System.out.println("Event caught: " + topicName);
+                        System.out.println("Evento recibido en: " + topicName);
                     }
                 } catch (JMSException e) {
-                    System.err.println("Error in topic " + topicName + ": " + e.getMessage());
+                    System.err.println("Error en topic " + topicName + ": " + e.getMessage());
                 }
             });
         }
