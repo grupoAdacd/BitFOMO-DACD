@@ -36,7 +36,7 @@ public class Application {
                             new Date(kline.getKlineOpenTime()) + " - " +
                             new Date(kline.getKlineCloseTime()));
                     publisher.publish(kline);
-                    System.out.println("Publishing events...");
+                    System.out.println("Publishing events...");=
                     eventStore.saveEvent("CryptoPrice", serializer.serialize(kline).toString());
                     System.out.println("Saving events...");
                 } catch (Exception e) {
