@@ -25,7 +25,6 @@ public class Application {
         CandlestickDBPersistence inserter = new CandlestickDBPersistence();
         CandleStickSerializer serializer = new CandleStickSerializer();
         ActiveMQEventPublisher publisher = new ActiveMQEventPublisher("tcp://localhost:61616", "CryptoPrice", serializer);
-        EventStore eventStore = new EventStore();
         for (ArrayList<CandlestickData> KlinesList: binanceApi.obtainFullResponse()) {
             System.out.println("Obtaining Arrays of Klines...");
             for (CandlestickData kline: KlinesList) {
@@ -35,9 +34,7 @@ public class Application {
                             new Date(kline.getKlineOpenTime()) + " - " +
                             new Date(kline.getKlineCloseTime()));
                     publisher.publish(kline);
-                    System.out.println("Publishing events...");=
-                    eventStore.saveEvent("CryptoPrice", serializer.serialize(kline).toString());
-                    System.out.println("Saving events...");
+                    System.out.println("Publishing events...");
                 } catch (Exception e) {
                     System.err.println("Error Publishing/Saving events..." + e);
                 }
