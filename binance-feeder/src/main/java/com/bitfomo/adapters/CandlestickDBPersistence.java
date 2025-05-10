@@ -1,7 +1,6 @@
-package com.bitfomo.adapters.persistence;
+package com.bitfomo.adapters;
 
-import com.bitfomo.adapters.persistence.manager.DatabaseManager;
-import com.bitfomo.domain.model.CandlestickData;
+import com.bitfomo.domain.CandlestickData;
 
 import java.sql.Connection;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.bitfomo.transformer.parser;
+package com.bitfomo.transformer;
 import org.json.*;
 
 public interface JsonParserProvider {

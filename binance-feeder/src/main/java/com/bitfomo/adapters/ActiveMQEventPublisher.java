@@ -1,7 +1,7 @@
-package com.bitfomo.adapters.broker;
+package com.bitfomo.adapters;
 
-import com.bitfomo.domain.model.CandlestickData;
-import com.bitfomo.domain.port.EventPublisherPort;
+import com.bitfomo.domain.CandlestickData;
+import com.bitfomo.domain.EventPublisherPort;
 import com.bitfomo.transformer.CandleStickSerializer;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import jakarta.jms.*;

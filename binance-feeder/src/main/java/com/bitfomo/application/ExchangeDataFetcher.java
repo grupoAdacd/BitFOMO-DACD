@@ -1,8 +1,8 @@
-package com.bitfomo.application.usecase;
+package com.bitfomo.application;
 
 
-import com.bitfomo.domain.port.ExchangeDataProvider;
-import com.bitfomo.adapters.provider.HttpClient;
+import com.bitfomo.domain.ExchangeDataProvider;
+import com.bitfomo.adapters.HttpClient;
 
 public class ExchangeDataFetcher implements ExchangeDataProvider {
     private final String Api_url = "https://api.binance.com/api/v3/uiKlines?symbol=";

@@ -1,4 +1,4 @@
-package com.bitfomo.adapters.provider;
+package com.bitfomo.adapters;
 
 import java.io.IOException;
 import java.net.http.HttpClient;

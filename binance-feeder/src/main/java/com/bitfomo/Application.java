@@ -1,13 +1,12 @@
 package com.bitfomo;
 
 
-import com.bitfomo.adapters.broker.ActiveMQEventPublisher;
-import com.bitfomo.adapters.broker.EventStore;
-import com.bitfomo.adapters.client.ExchangeApiClient;
-import com.bitfomo.application.usecase.GetLastKlineFromDB;
-import com.bitfomo.domain.model.CandlestickData;
-import com.bitfomo.adapters.persistence.manager.DatabaseManager;
-import com.bitfomo.adapters.persistence.CandlestickDBPersistence;
+import com.bitfomo.adapters.ActiveMQEventPublisher;
+import com.bitfomo.adapters.ExchangeApiClient;
+import com.bitfomo.application.GetLastKlineFromDB;
+import com.bitfomo.domain.CandlestickData;
+import com.bitfomo.adapters.DatabaseManager;
+import com.bitfomo.adapters.CandlestickDBPersistence;
 import com.bitfomo.transformer.CandleStickSerializer;
 
 import java.util.Date;

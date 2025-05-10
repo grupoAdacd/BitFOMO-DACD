@@ -1,6 +1,6 @@
 package com.bitfomo.transformer;
 
-import com.bitfomo.domain.model.CandlestickData;
+import com.bitfomo.domain.CandlestickData;
 import org.json.JSONObject;
 
 public class CandleStickSerializer {

@@ -1,4 +1,4 @@
-package com.bitfomo.domain.model;
+package com.bitfomo.domain;
 
 public class CandlestickData {
     private long KlineOpenTime;
