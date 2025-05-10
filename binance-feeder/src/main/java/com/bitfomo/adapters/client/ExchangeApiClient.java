@@ -2,8 +2,8 @@ package com.bitfomo.adapters.client;
 
 import com.bitfomo.domain.model.CandlestickData;
 import com.bitfomo.transformer.parser.JsonDataParser;
-import com.bitfomo.adapters.persistence.manager.MarketDataWriter;
-import com.bitfomo.transformer.MarketDataTransformer;
+import com.bitfomo.adapters.persistence.CandlestickDBPersistence;
+import com.bitfomo.transformer.CandlestickDeserializer;
 import com.bitfomo.application.usecase.ExchangeDataFetcher;
 
 import java.time.LocalDateTime;
@@ -29,11 +29,11 @@ public class ExchangeApiClient extends ExchangeDataFetcher {
                 if (jsonArrayOfKlines.parseArray().isEmpty()) {
                     break;
                 }
-                MarketDataTransformer processor = new MarketDataTransformer();
-                ArrayList<CandlestickData> binanceKlineArray = processor.processRawToObject(eachResponse);
+                CandlestickDeserializer deserializer = new CandlestickDeserializer();
+                ArrayList<CandlestickData> binanceKlineArray = deserializer.deserialize(eachResponse);
                 if (binanceKlineArray != null && !binanceKlineArray.isEmpty()) {
                     fullResponse.add(binanceKlineArray);
-                    MarketDataWriter inserter = new MarketDataWriter();
+                    CandlestickDBPersistence inserter = new CandlestickDBPersistence();
                     CandlestickData lastKline = binanceKlineArray.get(binanceKlineArray.size() - 1);
                     inserter.setLastKlineIntroduced(lastKline.getKlineCloseTime());
                     setStartDateTime(lastKline.getKlineCloseTime() + 1);
