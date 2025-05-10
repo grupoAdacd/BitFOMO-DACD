@@ -5,11 +5,11 @@ import com.bitfomo.domain.model.CandlestickData;
 
 import java.util.ArrayList;
 
-public class MarketDataTransformer {
-    public ArrayList<CandlestickData> processRawToObject(String eventJsonString) {
-        if (!eventJsonString.isEmpty()) {
+public class CandlestickDeserializer {
+    public ArrayList<CandlestickData> deserialize(String json) {
+        if (!json.isEmpty()) {
             try {
-                JsonDataParser eventParser = new JsonDataParser(eventJsonString);
+                JsonDataParser eventParser = new JsonDataParser(json);
                 ArrayList<CandlestickData> allKlinesObject = new ArrayList<>();
                 for (int i = 0; i < eventParser.parseArray().length(); i++) {
                     JsonDataParser Kline = new JsonDataParser(eventParser.parseArray().getJSONArray(i).toString());
