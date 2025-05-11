@@ -11,9 +11,22 @@ import com.bitfomo.transformer.CandleStickSerializer;
 
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Application {
+    private static final int DELAY_SECONDS = 0;
+    private static final int PERIOD_MINUTES = 5;
+
     public static void main(String[] args) {
+        if (args.length < 2) {
+            System.err.println("Usage: java -jar binance-feeder.jar <brokerUrl> <queueName>");
+            System.exit(1);
+        }
+        String brokerUrl = args[0];
+        String topic   = args[1];
+
         DatabaseManager.initializeDatabase();
         GetLastKlineFromDB getFromDB = new GetLastKlineFromDB();
         long lastKlineTime = getFromDB.getLastKline();
@@ -24,21 +37,24 @@ public class Application {
         }
         CandlestickDBPersistence inserter = new CandlestickDBPersistence();
         CandleStickSerializer serializer = new CandleStickSerializer();
-        ActiveMQEventPublisher publisher = new ActiveMQEventPublisher("tcp://localhost:61616", "CryptoPrice", serializer);
+        ActiveMQEventPublisher publisher = new ActiveMQEventPublisher(brokerUrl, topic, serializer);
         for (ArrayList<CandlestickData> KlinesList: binanceApi.obtainFullResponse()) {
             System.out.println("Obtaining Arrays of Klines...");
             for (CandlestickData kline: KlinesList) {
-                try {
-                    inserter.insertEvent(kline);
-                    System.out.println("Inserting data in database..." +
-                            new Date(kline.getKlineOpenTime()) + " - " +
-                            new Date(kline.getKlineCloseTime()));
-                    publisher.publish(kline);
-                    System.out.println("Publishing events...");
+                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                scheduler.scheduleAtFixedRate(() -> {
+                    try {
+                        inserter.insertEvent(kline);
+                        System.out.println("Inserting data in database..." +
+                                new Date(kline.getKlineOpenTime()) + " - " +
+                                new Date(kline.getKlineCloseTime()));
+                        publisher.publish(kline);
+                        System.out.println("Publishing events...");
 
-                } catch (Exception e) {
-                    System.err.println("Error Publishing/Saving events..." + e);
-                }
+                    } catch (Exception e) {
+                        System.err.println("Error Publishing/Saving events..." + e);
+                    }
+                }, DELAY_SECONDS, PERIOD_MINUTES, TimeUnit.MINUTES);
             }
         }
         System.out.println("Binance Application running...");
