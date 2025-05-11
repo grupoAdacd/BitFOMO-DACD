@@ -26,7 +26,7 @@ public class HttpClient implements HttpClientProvider {
     public HttpRequest createRequest() {
         EndpointResolver apiUrlBuilder = new EndpointResolver(baseUrl, addition);
         return HttpRequest.newBuilder()
-                .uri(URI.create(apiUrlBuilder.createApiUrl())).timeout(Duration.ofSeconds(10)).build();
+                .uri(URI.create(apiUrlBuilder.createApiUrl())).build();
     }
 
     @Override
