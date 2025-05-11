@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseManager {
-
     private static final String DATABASE_URL = "jdbc:sqlite:binance.db";
 
     public static void initializeDatabase() {
