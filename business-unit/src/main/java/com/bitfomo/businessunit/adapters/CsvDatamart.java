@@ -1,8 +1,6 @@
 package com.bitfomo.businessunit.adapters;
 
 import com.bitfomo.businessunit.domain.DatamartPort;
-//import com.bitfomo.domain.CryptoPrice;
-import com.bitfomo.domain.RedditPost;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
@@ -11,7 +9,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,17 +19,16 @@ import java.util.concurrent.TimeUnit;
 
 public class CsvDatamart implements DatamartPort {
     private final String csvPath;
-    private final Map<String, List<RedditPost>> redditBuffer; // Buffer para posts de Reddit por intervalo
-    //private final Map<String, List<CryptoPrice>> cryptoBuffer; // Buffer para precios de Binance por intervalo
-    private final long intervalMinutes = 5; // Intervalo de 5 minutos
+    private final Map<String, List<Map<String, Object>>> redditBuffer;
+    private final Map<String, List<Map<String, Object>>> cryptoBuffer;
+    private final long intervalMinutes = 5;
 
     public CsvDatamart(String csvPath) {
         this.csvPath = csvPath;
         this.redditBuffer = new HashMap<>();
-        //this.cryptoBuffer = new HashMap<>();
+        this.cryptoBuffer = new HashMap<>();
         initializeCsvFile();
 
-        // Programa la escritura al CSV cada 5 minutos
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(this::flushToCsv, 0, intervalMinutes, TimeUnit.MINUTES);
     }
@@ -48,7 +44,6 @@ public class CsvDatamart implements DatamartPort {
     }
 
     private String getIntervalTimestamp(String timestamp) {
-        // Convierte el timestamp a un intervalo de 5 minutos
         Instant instant = Instant.parse(timestamp);
         long minutes = instant.getEpochSecond() / 60;
         long intervalStart = (minutes / intervalMinutes) * intervalMinutes;
@@ -56,60 +51,59 @@ public class CsvDatamart implements DatamartPort {
     }
 
     @Override
-    public void storeRedditPost(RedditPost post) {
-        String interval = getIntervalTimestamp(post.ts());
-        redditBuffer.computeIfAbsent(interval, k -> new ArrayList<>()).add(post);
+    public void storeRedditPost(Map<String, Object> postData) {
+        String timestamp = (String) postData.get("ts");
+        String interval = getIntervalTimestamp(timestamp);
+        redditBuffer.computeIfAbsent(interval, k -> new ArrayList<>()).add(postData);
     }
 
-//    @Override
-//    public void storeCryptoPrice(CryptoPrice price) {
-//        String interval = getIntervalTimestamp(price.ts());
-//        cryptoBuffer.computeIfAbsent(interval, k -> new ArrayList<>()).add(price);
-//    }
+    @Override
+    public void storeCryptoPrice(Map<String, Object> priceData) {
+        // Usar el campo ts como timestamp
+        String timestamp = (String) priceData.get("ts");
+        String interval = getIntervalTimestamp(timestamp);
+        cryptoBuffer.computeIfAbsent(interval, k -> new ArrayList<>()).add(priceData);
+    }
 
     @Override
     public void flushToCsv() {
         try (CSVWriter writer = new CSVWriter(new FileWriter(csvPath, true))) {
             for (String interval : redditBuffer.keySet()) {
-                List<RedditPost> posts = redditBuffer.get(interval);
-                //List<CryptoPrice> prices = cryptoBuffer.getOrDefault(interval, List.of());
+                List<Map<String, Object>> posts = redditBuffer.get(interval);
+                List<Map<String, Object>> prices = cryptoBuffer.getOrDefault(interval, List.of());
 
-                // Calcula el sentimiento promedio
                 double sentiment = 0.0;
                 String subreddit = "";
                 if (!posts.isEmpty()) {
-                    subreddit = posts.get(0).subreddit();
+                    subreddit = (String) posts.get(0).get("subreddit");
                     sentiment = posts.stream()
-                            .filter(p -> p.sentimentScore() != null)
-                            .mapToDouble(RedditPost::sentimentScore)
+                            .filter(p -> p.get("sentimentScore") != null)
+                            .mapToDouble(p -> ((Number) p.get("sentimentScore")).doubleValue())
                             .average()
                             .orElse(0.0);
                 }
 
-                // Calcula el precio promedio
-//                double price = 0.0;
-//                String symbol = "";
-//                if (!prices.isEmpty()) {
-//                    symbol = prices.get(0).symbol();
-//                    price = prices.stream()
-//                            .mapToDouble(CryptoPrice::price)
-//                            .average()
-//                            .orElse(0.0);
-//                }
+                double price = 0.0;
+                String symbol = "BTC"; // Suponemos que el símbolo es siempre BTC por ahora
+                if (!prices.isEmpty()) {
+                    price = prices.stream()
+                            .filter(p -> p.get("closePrice") != null)
+                            .mapToDouble(p -> Double.parseDouble((String) p.get("closePrice")))
+                            .average()
+                            .orElse(0.0);
+                }
 
-                // Escribe la fila en el CSV
                 writer.writeNext(new String[]{
                         interval,
                         subreddit,
-                        posts.isEmpty() ? "" : String.valueOf(sentiment),
-                        //symbol,
-                        //prices.isEmpty() ? "" : String.valueOf(price)
+                        posts.isEmpty() || sentiment == 0.0 ? "" : String.valueOf(sentiment),
+                        symbol,
+                        prices.isEmpty() ? "" : String.valueOf(price)
                 });
             }
 
-            // Limpia los buffers
             redditBuffer.clear();
-            //cryptoBuffer.clear();
+            cryptoBuffer.clear();
         } catch (IOException e) {
             System.err.println("Error escribiendo en datamart.csv: " + e.getMessage());
         }
@@ -122,7 +116,7 @@ public class CsvDatamart implements DatamartPort {
         List<Double> scores = new ArrayList<>();
 
         try (CSVReader reader = new CSVReader(new FileReader(csvPath))) {
-            reader.readNext(); // Saltar el encabezado
+            reader.readNext();
             String[] line;
             while ((line = reader.readNext()) != null) {
                 Instant timestamp = Instant.parse(line[0]);
@@ -134,7 +128,6 @@ public class CsvDatamart implements DatamartPort {
                         double score = Double.parseDouble(line[2]);
                         scores.add(score);
                     } catch (NumberFormatException e) {
-                        // Ignorar valores no válidos
                     }
                 }
             }
@@ -155,7 +148,7 @@ public class CsvDatamart implements DatamartPort {
         List<Double> prices = new ArrayList<>();
 
         try (CSVReader reader = new CSVReader(new FileReader(csvPath))) {
-            reader.readNext(); // Saltar el encabezado
+            reader.readNext();
             String[] line;
             while ((line = reader.readNext()) != null) {
                 Instant timestamp = Instant.parse(line[0]);
@@ -167,7 +160,6 @@ public class CsvDatamart implements DatamartPort {
                         double price = Double.parseDouble(line[4]);
                         prices.add(price);
                     } catch (NumberFormatException e) {
-                        // Ignorar valores no válidos
                     }
                 }
             }
