@@ -32,11 +32,12 @@ public class EventStore {
             File file = new File(directory, fileName);
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+                System.out.println("Saving into: " + fileName);
                 writer.write(json);
                 writer.newLine();
             }
         } catch (Exception e) {
-            System.err.println("Error guardando evento: " + e.getMessage());
+            System.err.println("Error saving event: " + e.getMessage());
         }
     }
 }
