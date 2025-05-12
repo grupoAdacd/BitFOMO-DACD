@@ -1,0 +1,3 @@
+com\bitfomo\Main.class
+com\bitfomo\adapters\broker\EventStore.class
+com\bitfomo\adapters\broker\MessageReceiver.class

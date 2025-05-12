@@ -1,14 +1,15 @@
 package com.bitfomo;
 
-import com.bitfomo.adapters.JdbcPostRepository;
 import com.bitfomo.adapters.ActiveMqEventPublisher;
+import com.bitfomo.adapters.JdbcPostRepository;
 import com.bitfomo.adapters.RedditApiAdapter;
+import com.bitfomo.adapters.StanfordSentimentAnalyzer;
 import com.bitfomo.application.FetchRedditPostsUseCaseImpl;
-import com.bitfomo.domain.FetchRedditPostsUseCase;
-import com.bitfomo.domain.ExternalRedditApiPort;
 import com.bitfomo.domain.EventPublisherPort;
+import com.bitfomo.domain.ExternalRedditApiPort;
+import com.bitfomo.domain.FetchRedditPostsUseCase;
 import com.bitfomo.domain.PostRepositoryPort;
-
+import com.bitfomo.domain.SentimentAnalyzerPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,16 +33,17 @@ public class Application {
         }
 
         String userAgent = args[0];
-        String jdbcUrl   = args[1];
+        String jdbcUrl = args[1];
         String brokerUrl = args[2];
         String queueName = args[3];
 
         ExternalRedditApiPort redditApi = new RedditApiAdapter(userAgent);
         PostRepositoryPort postRepo = new JdbcPostRepository(jdbcUrl);
         EventPublisherPort publisher = new ActiveMqEventPublisher(brokerUrl, queueName);
+        SentimentAnalyzerPort sentimentAnalyzer = new StanfordSentimentAnalyzer();
 
         FetchRedditPostsUseCase fetchPosts = new FetchRedditPostsUseCaseImpl(
-                redditApi, postRepo, SUBREDDITS, POST_LIMIT, publisher);
+                redditApi, postRepo, SUBREDDITS, POST_LIMIT, publisher, sentimentAnalyzer);
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {

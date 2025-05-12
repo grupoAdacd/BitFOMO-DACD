@@ -1,0 +1,11 @@
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\adapters\ActiveMqEventPublisher.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\adapters\JdbcPostRepository.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\adapters\RedditApiAdapter.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\adapters\RedditPostSerializer.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\Application.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\application\FetchRedditPostsUseCaseImpl.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\domain\EventPublisherPort.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\domain\ExternalRedditApiPort.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\domain\FetchRedditPostsUseCase.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\domain\PostRepositoryPort.java
+C:\Users\Juan Diego\OneDrive\Escritorio\bombardeen la ulpgc\4 semestre\DACD\Práctica\DEFINITIVE\reddit-feeder\src\main\java\com\bitfomo\domain\RedditPost.java

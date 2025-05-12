@@ -1,0 +1,11 @@
+com\bitfomo\Application.class
+com\bitfomo\adapters\ActiveMqEventPublisher.class
+com\bitfomo\adapters\RedditPostSerializer.class
+com\bitfomo\application\FetchRedditPostsUseCaseImpl.class
+com\bitfomo\domain\RedditPost.class
+com\bitfomo\domain\EventPublisherPort.class
+com\bitfomo\domain\PostRepositoryPort.class
+com\bitfomo\adapters\RedditApiAdapter.class
+com\bitfomo\domain\ExternalRedditApiPort.class
+com\bitfomo\domain\FetchRedditPostsUseCase.class
+com\bitfomo\adapters\JdbcPostRepository.class

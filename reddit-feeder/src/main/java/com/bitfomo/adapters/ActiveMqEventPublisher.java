@@ -34,9 +34,17 @@ public class ActiveMqEventPublisher implements EventPublisherPort {
             MessageProducer producer = session.createProducer(topic);
 
             String json = mapper.writeValueAsString(post);
+<<<<<<< HEAD
             TextMessage message = session.createTextMessage(json);
             producer.send(message);
             System.out.println("Event sent to: " + topicName);
+=======
+            //System.out.println("JSON enviado: " + json); // Descomentar este log para inspeccionar el JSON
+
+            TextMessage message = session.createTextMessage(json);
+            producer.send(message);
+            System.out.println("Evento enviado al topic: " + topicName);
+>>>>>>> feature/reddit-feeder
 
         } catch (JMSException | JsonProcessingException e) {
             throw new RuntimeException("Error publicando el RedditPost a ActiveMQ", e);
