@@ -6,6 +6,8 @@ import org.json.JSONObject;
 public class CandleStickSerializer {
     public JSONObject serialize(CandlestickData candleStick) {
         JSONObject candleStickObject = new JSONObject();
+        candleStickObject.put("ts", candleStick.getTs());
+        candleStickObject.put("ss", candleStick.getSs());
         candleStickObject.put("klineOpenTime", candleStick.getKlineOpenTime());
         candleStickObject.put("openPrice", candleStick.getOpenPrice());
         candleStickObject.put("highPrice", candleStick.getHighPrice());
