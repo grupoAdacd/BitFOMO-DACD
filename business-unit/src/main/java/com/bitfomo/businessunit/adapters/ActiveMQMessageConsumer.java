@@ -2,15 +2,13 @@ package com.bitfomo.businessunit.adapters;
 
 import com.bitfomo.businessunit.domain.DatamartPort;
 import com.bitfomo.businessunit.domain.MessageConsumerPort;
-//import com.bitfomo.domain.CryptoPrice;
-import com.bitfomo.domain.RedditPost;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import java.util.List;
+import java.util.Map;
 
-//TODO APPLY SRP
 public class ActiveMQMessageConsumer implements MessageConsumerPort {
     private final List<String> topics;
     private final String url;
@@ -41,16 +39,14 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
                     try {
                         if (message instanceof TextMessage textMessage) {
                             String json = textMessage.getText();
+                            Map<String, Object> eventData = mapper.readValue(json, Map.class);
                             if (topicName.equals("RedditPost")) {
-                                RedditPost post = mapper.readValue(json, RedditPost.class);
-                                datamartPort.storeRedditPost(post);
-                                System.out.println("Post recibido y almacenado: " + post);
+                                datamartPort.storeRedditPost(eventData);
+                                System.out.println("Post recibido y almacenado: " + eventData);
+                            } else if (topicName.equals("CryptoPrice")) {
+                                datamartPort.storeCryptoPrice(eventData);
+                                System.out.println("Precio recibido y almacenado: " + eventData);
                             }
-//                            else if (topicName.equals("CryptoPrice")) {
-//                                CryptoPrice price = mapper.readValue(json, CryptoPrice.class);
-//                                datamartPort.storeCryptoPrice(price);
-//                                System.out.println("Precio recibido y almacenado: " + price);
-//                            }
                         }
                     } catch (Exception e) {
                         System.err.println("Error procesando mensaje: " + e.getMessage());

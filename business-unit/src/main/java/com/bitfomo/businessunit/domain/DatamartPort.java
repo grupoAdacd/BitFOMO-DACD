@@ -1,12 +1,11 @@
 package com.bitfomo.businessunit.domain;
 
-//import com.bitfomo.domain.CryptoPrice;
-import com.bitfomo.domain.RedditPost;
+import java.util.Map;
 
 public interface DatamartPort {
-    void storeRedditPost(RedditPost post);
-    //void storeCryptoPrice(CryptoPrice price);
-    void flushToCsv(); // Escribe los datos acumulados al CSV
+    void storeRedditPost(Map<String, Object> postData);
+    void storeCryptoPrice(Map<String, Object> priceData);
+    void flushToCsv();
     double getAverageSentiment(String subreddit, String startTime, String endTime);
     double getAveragePrice(String symbol, String startTime, String endTime);
 }
