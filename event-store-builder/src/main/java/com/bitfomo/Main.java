@@ -14,7 +14,7 @@ public class Main {
 
         String brokerUrl = args[0];
 
-        List<String> topics = List.of("RedditPost");
+        List<String> topics = List.of("RedditPost", "CryptoPrice");
 
         MessageReceiver receiver = new MessageReceiver(topics, brokerUrl);
 
