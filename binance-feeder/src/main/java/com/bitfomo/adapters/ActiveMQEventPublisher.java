@@ -28,7 +28,8 @@ public class ActiveMQEventPublisher implements EventPublisherPort {
             Topic topic = session.createTopic(topicName);
             MessageProducer producer = session.createProducer(topic);
             String json = serializer.serialize(kline).toString();
-            TextMessage message = session.createTextMessage(json);
+            String message_string = session.createTextMessage(json).getText();
+            TextMessage message = session.createTextMessage(message_string);
             producer.send(message);
             System.out.println("Event sent to: " + topicName);
         } catch (JMSException e) {
