@@ -1,6 +1,10 @@
 package com.bitfomo.domain;
 
+import java.time.Instant;
+
 public class CandlestickData {
+    private String ts;
+    private final String ss;
     private long KlineOpenTime;
     private String OpenPrice;
     private String HighPrice;
@@ -12,6 +16,8 @@ public class CandlestickData {
     private int NumberOfTrades;
 
     public CandlestickData(long klineOpenTime, String openPrice, String highPrice, String lowPrice, String closePrice, String volume, long klineCloseTime, String quoteAssetVolume, int numberOfTrades) {
+        ts = Instant.now().toString();
+        ss = "binance-feeder";
         KlineOpenTime = klineOpenTime;
         OpenPrice = openPrice;
         HighPrice = highPrice;
@@ -97,5 +103,17 @@ public class CandlestickData {
 
     public double transformDouble(String parameter) {
         return Double.parseDouble(parameter);
+    }
+
+    public String getTs() {
+        return ts;
+    }
+
+    public void setTs(String ts) {
+        this.ts = ts;
+    }
+
+    public String getSs() {
+        return ss;
     }
 }
