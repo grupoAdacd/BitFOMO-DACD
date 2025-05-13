@@ -1,3 +1,4 @@
+package ParsingTest;
 
 import com.bitfomo.transformer.JsonDataParser;
 import org.json.JSONArray;
