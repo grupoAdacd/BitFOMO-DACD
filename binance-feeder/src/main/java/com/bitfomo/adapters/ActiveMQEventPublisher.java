@@ -10,11 +10,13 @@ public class ActiveMQEventPublisher implements EventPublisherPort {
     private final ConnectionFactory connectionFactory;
     private final String topicName;
     private final CandleStickSerializer serializer;
+
     public ActiveMQEventPublisher(String brokerUrl, String topicName, CandleStickSerializer serializer) {
         this.connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
         this.topicName = topicName;
         this.serializer = serializer;
     }
+
     @Override
     public void publish(CandlestickData kline) {
         Connection connection = null;
@@ -26,13 +28,11 @@ public class ActiveMQEventPublisher implements EventPublisherPort {
             Topic topic = session.createTopic(topicName);
             MessageProducer producer = session.createProducer(topic);
             String json = serializer.serialize(kline).toString();
-            String message_string = session.createTextMessage(json).getText();
-            TextMessage message = session.createTextMessage(message_string);
+            TextMessage message = session.createTextMessage(json);
             producer.send(message);
             System.out.println("Event sent to: " + topicName);
-
         } catch (JMSException e) {
-            throw new RuntimeException("Error Publishing Event...", e);
+            throw new RuntimeException("Error Publishing Event: " + e.getMessage(), e);
         } finally {
             if (session != null) {
                 try {
