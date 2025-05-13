@@ -3,7 +3,7 @@ package com.bitfomo.transformer;
 import com.bitfomo.domain.CandlestickData;
 import org.json.JSONObject;
 
-public class CandleStickSerializer {
+public class CandlestickSerializer {
     public JSONObject serialize(CandlestickData candleStick) {
         JSONObject candleStickObject = new JSONObject();
         candleStickObject.put("ts", candleStick.getTs());
