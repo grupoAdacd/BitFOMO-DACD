@@ -15,11 +15,14 @@ public class CliUserInterface {
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Business Unit CLI. Comandos disponibles:");
-        System.out.println("  sentiment <subreddit> - Muestra el sentimiento promedio del subreddit (última hora)");
-        System.out.println("  price <symbol> - Muestra el precio promedio del símbolo (última hora)");
-        System.out.println("  recommend <subreddit> <symbol> - Genera una recomendación (última hora)");
-        System.out.println("  exit - Salir");
+        System.out.println("Type help to see available commands:");
+        String help = scanner.nextLine().trim();
+        if (help.equalsIgnoreCase("help")) {
+            System.out.println("  sentiment <subreddit> - Shows average sentiment given a subreddit (last hour)");
+            System.out.println("  price <date-start> <date-end> - Shows average price of a given interval of time (format=yyyy/MM/dd)");
+            System.out.println("  recommend <subreddit> <date-start> <date-end> - Generates a financial recommendation (last hour)");
+            System.out.println("  exit - Stops execution");
+        }
 
         while (true) {
             System.out.print("> ");
@@ -27,15 +30,12 @@ public class CliUserInterface {
             if (input.equalsIgnoreCase("exit")) {
                 break;
             }
-
             String[] parts = input.split("\\s+");
             if (parts.length < 2) {
-                System.out.println("Comando inválido. Usa: sentiment <subreddit>, price <symbol>, o recommend <subreddit> <symbol>");
+                System.out.println("Invalid command.");
                 continue;
             }
-
             try {
-                // Usa el último intervalo de 1 hora por defecto
                 String endTime = Instant.now().toString();
                 String startTime = Instant.now().minus(1, ChronoUnit.HOURS).toString();
 
@@ -43,16 +43,16 @@ public class CliUserInterface {
                     case "sentiment":
                         String subreddit = parts[1];
                         double averageSentiment = businessUnitService.calculateAverageSentiment(subreddit, startTime, endTime);
-                        System.out.printf("Sentimiento promedio de %s (última hora): %.2f%n", subreddit, averageSentiment);
+                        System.out.printf("Average sentiment of %s (last hour): %.2f%n", subreddit, averageSentiment);
                         break;
                     case "price":
                         String symbol = parts[1];
                         double averagePrice = businessUnitService.getAveragePrice(symbol, startTime, endTime);
-                        System.out.printf("Precio promedio de %s (última hora): %.2f%n", symbol, averagePrice);
+                        System.out.printf("Average price of %s (last hour): %.2f%n", symbol, averagePrice);
                         break;
                     case "recommend":
                         if (parts.length < 3) {
-                            System.out.println("Comando inválido. Usa: recommend <subreddit> <symbol>");
+                            System.out.println("Invalid command. Use: recommend <subreddit> <symbol>");
                             continue;
                         }
                         subreddit = parts[1];
@@ -61,10 +61,17 @@ public class CliUserInterface {
                         System.out.println(recommendation);
                         break;
                     default:
-                        System.out.println("Comando no reconocido. Comandos disponibles: sentiment, price, recommend, exit");
+                        System.out.println("Unknown command. Type help to see available commands");
+                        String helpUnknownCommand = scanner.nextLine().trim();
+                        if (helpUnknownCommand.equalsIgnoreCase("help")){
+                            System.out.println("  sentiment <subreddit> - Shows average sentiment given a subreddit (last hour)");
+                            System.out.println("  price <date-start> <date-end> - Shows average price of a given interval of time (format=yyyy/MM/dd)");
+                            System.out.println("  recommend <subreddit> <date-start> <date-end> - Generates a financial recommendation (last hour)");
+                            System.out.println("  exit - Stops execution");
+                        }
                 }
             } catch (Exception e) {
-                System.out.println("Error procesando el comando: " + e.getMessage());
+                System.out.println("Error processing command: " + e.getMessage());
             }
         }
 
