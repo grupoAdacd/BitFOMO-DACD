@@ -7,7 +7,7 @@ import com.bitfomo.application.GetLastKlineFromDB;
 import com.bitfomo.domain.CandlestickData;
 import com.bitfomo.adapters.DatabaseManager;
 import com.bitfomo.adapters.CandlestickDBPersistence;
-import com.bitfomo.transformer.CandleStickSerializer;
+import com.bitfomo.transformer.CandlestickSerializer;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class Application {
             binanceApi.setStartDateTime(lastKlineTime + 1);
         }
         CandlestickDBPersistence inserter = new CandlestickDBPersistence();
-        CandleStickSerializer serializer = new CandleStickSerializer();
+        CandlestickSerializer serializer = new CandlestickSerializer();
         ActiveMQEventPublisher publisher = new ActiveMQEventPublisher(brokerUrl, topic, serializer);
         for (ArrayList<CandlestickData> KlinesList: binanceApi.obtainFullResponse()) {
             System.out.println("Obtaining Arrays of Klines...");

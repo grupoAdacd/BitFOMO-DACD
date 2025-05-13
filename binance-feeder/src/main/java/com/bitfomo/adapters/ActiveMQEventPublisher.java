@@ -2,15 +2,15 @@ package com.bitfomo.adapters;
 
 import com.bitfomo.domain.CandlestickData;
 import com.bitfomo.domain.EventPublisherPort;
-import com.bitfomo.transformer.CandleStickSerializer;
+import com.bitfomo.transformer.CandlestickSerializer;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import jakarta.jms.*;
 
 public class ActiveMQEventPublisher implements EventPublisherPort {
     private final ConnectionFactory connectionFactory;
     private final String topicName;
-    private final CandleStickSerializer serializer;
-    public ActiveMQEventPublisher(String brokerUrl, String topicName, CandleStickSerializer serializer) {
+    private final CandlestickSerializer serializer;
+    public ActiveMQEventPublisher(String brokerUrl, String topicName, CandlestickSerializer serializer) {
         this.connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
         this.topicName = topicName;
         this.serializer = serializer;
