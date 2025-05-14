@@ -4,8 +4,8 @@ import com.bitfomo.adapters.ActiveMQEventPublisher;
 import com.bitfomo.adapters.ExchangeApiClient;
 import com.bitfomo.adapters.DatabaseManager;
 import com.bitfomo.adapters.JdbcKlineRepository;
-import com.bitfomo.domain.CandlestickData;
-import com.bitfomo.transformer.CandleStickSerializer;
+import com.bitfomo.domain.Candlestick;
+import com.bitfomo.transformer.CandlestickSerializer;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,13 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 public class Application {
     private static final int INITIAL_DELAY_SECONDS = 0;
-    private static final int PERIOD_MINUTES = 5;
+    private static final int PERIOD_MINUTES = 60;
 
     public static void main(String[] args) {
         DatabaseManager.initializeDatabase();
         JdbcKlineRepository klineRepository = new JdbcKlineRepository(DatabaseManager.getDatabaseUrl());
         ExchangeApiClient binanceApi = new ExchangeApiClient();
-        CandleStickSerializer serializer = new CandleStickSerializer();
+        CandlestickSerializer serializer = new CandlestickSerializer();
         ActiveMQEventPublisher publisher = new ActiveMQEventPublisher("tcp://localhost:61616", "CryptoPrice", serializer);
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -33,9 +33,9 @@ public class Application {
                 if (lastKlineTime > 0) {
                     binanceApi.setStartDateTime(lastKlineTime + 1);
                 }
-                for (ArrayList<CandlestickData> KlinesList : binanceApi.obtainFullResponse()) {
+                for (ArrayList<Candlestick> KlinesList : binanceApi.obtainFullResponse()) {
                     System.out.println("Obtaining Arrays of Klines...");
-                    for (CandlestickData kline : KlinesList) {
+                    for (Candlestick kline : KlinesList) {
                         try {
                             klineRepository.save(kline);
                             System.out.println("Inserting data in database..." +
@@ -53,8 +53,6 @@ public class Application {
                 e.printStackTrace();
             }
         }, INITIAL_DELAY_SECONDS, PERIOD_MINUTES, TimeUnit.MINUTES);
-
-        // Mantener el programa corriendo hasta que se detenga manualmente
         try {
             System.out.println("Binance Application running...");
             Thread.sleep(Long.MAX_VALUE);
