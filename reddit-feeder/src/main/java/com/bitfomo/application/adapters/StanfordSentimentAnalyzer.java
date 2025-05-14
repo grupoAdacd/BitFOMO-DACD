@@ -1,4 +1,4 @@
-package com.bitfomo.adapters;
+package com.bitfomo.application.adapters;
 
 import com.bitfomo.domain.SentimentAnalyzerPort;
 import edu.stanford.nlp.ling.CoreAnnotations;

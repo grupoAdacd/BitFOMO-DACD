@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record RedditPost(
         String id,
-        String ts,
+        String ts, //TODO Instant
         String ss,
         String subreddit,
         String author,

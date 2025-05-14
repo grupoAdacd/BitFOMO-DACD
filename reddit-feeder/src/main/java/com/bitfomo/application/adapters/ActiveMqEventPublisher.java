@@ -1,4 +1,4 @@
-package com.bitfomo.adapters;
+package com.bitfomo.application.adapters;
 
 import com.bitfomo.domain.EventPublisherPort;
 import com.bitfomo.domain.RedditPost;

@@ -1,4 +1,4 @@
-package com.bitfomo.adapters;
+package com.bitfomo.application.adapters;
 
 import com.bitfomo.domain.RedditPost;
 import com.bitfomo.domain.PostRepositoryPort;
@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-//TODO save oldest to newest
 public class JdbcPostRepository implements PostRepositoryPort {
 
     private static final String DDL = """
