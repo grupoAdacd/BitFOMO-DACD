@@ -1,9 +1,9 @@
 package com.bitfomo;
 
-import com.bitfomo.adapters.ActiveMqEventPublisher;
-import com.bitfomo.adapters.JdbcPostRepository;
-import com.bitfomo.adapters.RedditApiAdapter;
-import com.bitfomo.adapters.StanfordSentimentAnalyzer;
+import com.bitfomo.application.adapters.ActiveMqEventPublisher;
+import com.bitfomo.application.adapters.JdbcPostRepository;
+import com.bitfomo.application.adapters.RedditApiAdapter;
+import com.bitfomo.application.adapters.StanfordSentimentAnalyzer;
 import com.bitfomo.application.FetchRedditPostsUseCaseImpl;
 import com.bitfomo.domain.EventPublisherPort;
 import com.bitfomo.domain.ExternalRedditApiPort;

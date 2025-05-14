@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -53,24 +55,37 @@ public class CsvDatamart implements DatamartPort {
     @Override
     public void storeRedditPost(Map<String, Object> postData) {
         String timestamp = (String) postData.get("ts");
+        System.out.println("Storing RedditPost with timestamp: " + timestamp + ", postData: " + postData);
         String interval = getIntervalTimestamp(timestamp);
+        System.out.println("RedditPost interval: " + interval);
         redditBuffer.computeIfAbsent(interval, k -> new ArrayList<>()).add(postData);
     }
 
     @Override
     public void storeCryptoPrice(Map<String, Object> priceData) {
-        // Usar el campo ts como timestamp
         String timestamp = (String) priceData.get("ts");
+        System.out.println("Storing CryptoPrice with timestamp: " + timestamp + ", priceData: " + priceData);
         String interval = getIntervalTimestamp(timestamp);
+        System.out.println("CryptoPrice interval: " + interval);
         cryptoBuffer.computeIfAbsent(interval, k -> new ArrayList<>()).add(priceData);
     }
 
     @Override
     public void flushToCsv() {
         try (CSVWriter writer = new CSVWriter(new FileWriter(csvPath, true))) {
-            for (String interval : redditBuffer.keySet()) {
-                List<Map<String, Object>> posts = redditBuffer.get(interval);
+            // Obtener todos los intervalos de ambos buffers
+            Set<String> allIntervals = new HashSet<>();
+            allIntervals.addAll(redditBuffer.keySet());
+            allIntervals.addAll(cryptoBuffer.keySet());
+
+            // Procesar cada intervalo
+            for (String interval : allIntervals) {
+                List<Map<String, Object>> posts = redditBuffer.getOrDefault(interval, List.of());
                 List<Map<String, Object>> prices = cryptoBuffer.getOrDefault(interval, List.of());
+
+                System.out.println("Flushing interval: " + interval);
+                System.out.println("RedditPosts: " + posts);
+                System.out.println("CryptoPrices: " + prices);
 
                 double sentiment = 0.0;
                 String subreddit = "";
@@ -88,17 +103,26 @@ public class CsvDatamart implements DatamartPort {
                 if (!prices.isEmpty()) {
                     price = prices.stream()
                             .filter(p -> p.get("closePrice") != null)
-                            .mapToDouble(p -> Double.parseDouble((String) p.get("closePrice")))
+                            .mapToDouble(p -> {
+                                try {
+                                    return Double.parseDouble((String) p.get("closePrice"));
+                                } catch (NumberFormatException e) {
+                                    System.err.println("Error parsing closePrice: " + p.get("closePrice"));
+                                    return 0.0;
+                                }
+                            })
                             .average()
                             .orElse(0.0);
                 }
+
+                System.out.println("Writing to datamart.csv: interval=" + interval + ", subreddit=" + subreddit + ", sentiment=" + sentiment + ", symbol=" + symbol + ", price=" + price);
 
                 writer.writeNext(new String[]{
                         interval,
                         subreddit,
                         posts.isEmpty() || sentiment == 0.0 ? "" : String.valueOf(sentiment),
                         symbol,
-                        prices.isEmpty() ? "" : String.valueOf(price)
+                        prices.isEmpty() || price == 0.0 ? "" : String.valueOf(price)
                 });
             }
 
