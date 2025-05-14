@@ -1,6 +1,6 @@
 package com.bitfomo.domain;
 
 public interface KlineRepositoryPort {
-    void save(CandlestickData kline);
+    void save(Candlestick kline);
     long getLastKline();
 }
