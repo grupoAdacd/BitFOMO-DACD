@@ -1,19 +1,19 @@
 package com.bitfomo.transformer;
 
-import com.bitfomo.domain.CandlestickData;
+import com.bitfomo.domain.Candlestick;
 
 import java.util.ArrayList;
 
 public class CandlestickDeserializer {
-    public ArrayList<CandlestickData> deserialize(String json) {
+    public ArrayList<Candlestick> deserialize(String json) {
         if (!json.isEmpty()) {
             try {
                 JsonDataParser eventParser = new JsonDataParser(json);
-                ArrayList<CandlestickData> allKlinesObject = new ArrayList<>();
+                ArrayList<Candlestick> allKlinesObject = new ArrayList<>();
                 for (int i = 0; i < eventParser.parseArray().length(); i++) {
                     JsonDataParser Kline = new JsonDataParser(eventParser.parseArray().getJSONArray(i).toString());
                     if (Kline.parseArray().length() >= 10){
-                        CandlestickData binanceKline = new CandlestickData(
+                        Candlestick binanceKline = new Candlestick(
                                 Kline.parseArray().getLong(0),
                                 Kline.parseArray().getString(1),
                                 Kline.parseArray().getString(2),

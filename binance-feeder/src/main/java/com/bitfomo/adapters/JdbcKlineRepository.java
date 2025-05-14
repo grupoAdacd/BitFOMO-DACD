@@ -1,6 +1,6 @@
 package com.bitfomo.adapters;
 
-import com.bitfomo.domain.CandlestickData;
+import com.bitfomo.domain.Candlestick;
 import com.bitfomo.domain.KlineRepositoryPort;
 
 import java.sql.Connection;
@@ -19,7 +19,7 @@ public class JdbcKlineRepository implements KlineRepositoryPort {
     }
 
     @Override
-    public void save(CandlestickData kline) {
+    public void save(Candlestick kline) {
         try (Connection conn = DriverManager.getConnection(databaseUrl)) {
             String sql = "INSERT INTO BinanceEvents (Kline_Open_Time, open_price, high_price, low_price, close_price, volume, Kline_Close_Time, quote_asset_volume, number_of_trades) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
