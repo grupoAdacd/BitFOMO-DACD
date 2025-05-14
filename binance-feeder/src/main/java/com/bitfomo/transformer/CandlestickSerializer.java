@@ -1,10 +1,10 @@
 package com.bitfomo.transformer;
 
-import com.bitfomo.domain.CandlestickData;
+import com.bitfomo.domain.Candlestick;
 import org.json.JSONObject;
 
-public class CandleStickSerializer {
-    public JSONObject serialize(CandlestickData candleStick) {
+public class CandlestickSerializer {
+    public JSONObject serialize(Candlestick candleStick) {
         JSONObject candleStickObject = new JSONObject();
         candleStickObject.put("ts", candleStick.getTs());
         candleStickObject.put("ss", candleStick.getSs());
