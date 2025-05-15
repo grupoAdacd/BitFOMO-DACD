@@ -3,7 +3,7 @@ package es.ulpgc.dacd.bitfomo.redditfeeder;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.ActiveMqEventPublisher;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.JdbcPostRepository;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.RedditApiAdapter;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.StanfordSentimentAnalyzer;
+import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.SentimentAnalyzer;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.FetchRedditPostsUseCaseImpl;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.EventPublisherPort;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.ExternalRedditApiPort;
@@ -40,7 +40,7 @@ public class Application {
         ExternalRedditApiPort redditApi = new RedditApiAdapter(userAgent);
         PostRepositoryPort postRepo = new JdbcPostRepository(jdbcUrl);
         EventPublisherPort publisher = new ActiveMqEventPublisher(brokerUrl, queueName);
-        SentimentAnalyzerPort sentimentAnalyzer = new StanfordSentimentAnalyzer();
+        SentimentAnalyzerPort sentimentAnalyzer = new SentimentAnalyzer();
 
         FetchRedditPostsUseCase fetchPosts = new FetchRedditPostsUseCaseImpl(
                 redditApi, postRepo, SUBREDDITS, POST_LIMIT, publisher, sentimentAnalyzer);
