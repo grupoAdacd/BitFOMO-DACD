@@ -81,9 +81,9 @@
         </dependency>
 
         <dependency>
-            <groupId>de.julielab</groupId>
-            <artifactId>aliasi-lingpipe</artifactId>
-            <version>4.1.2-JL1.0</version>
+            <groupId>org.apache.opennlp</groupId>
+            <artifactId>opennlp-tools</artifactId>
+            <version>2.5.4</version>
         </dependency>
 
     </dependencies>
