@@ -27,7 +27,7 @@ public class EventStore {
                 String postId = obj.get("id").asText();
                 if (deduplicator.isDuplicateRedditPost(postId)) {
                     System.out.println("RedditPost duplicado omitido: " + postId);
-                    return; // Omite el evento duplicado
+                    return;
                 }
                 deduplicator.addRedditPostId(postId);
             }
