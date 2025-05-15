@@ -2,7 +2,7 @@ import com.bitfomo.domain.CandlestickData;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import es.ulpgc.dacd.binancefeeder.transformer.CandlestickSerializer;
+import es.ulpgc.dacd.bitfomo.binancefeeder.transformer.CandlestickSerializer;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CandlestickSerializerTest {

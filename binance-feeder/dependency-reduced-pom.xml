@@ -21,7 +21,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>es.ulpgc.dacd.binancefeeder.Application</mainClass>
+                  <mainClass>es.ulpgc.dacd.bitfomo.binancefeeder.Application</mainClass>
                 </transformer>
               </transformers>
             </configuration>

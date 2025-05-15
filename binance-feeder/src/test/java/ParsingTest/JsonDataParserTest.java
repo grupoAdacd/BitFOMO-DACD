@@ -1,6 +1,6 @@
 package ParsingTest;
 
-import es.ulpgc.dacd.binancefeeder.transformer.JsonDataParser;
+import es.ulpgc.dacd.bitfomo.binancefeeder.transformer.JsonDataParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
