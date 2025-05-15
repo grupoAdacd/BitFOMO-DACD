@@ -11,7 +11,12 @@ public class RedditPostEnricher {
     }
 
     public RedditPost enrichWithSentiment(RedditPost post) {
-        Double sentimentScore = sentimentAnalyzer.analyzeSentiment(post.selftext());
+        String combinedText = post.title() != null ? post.title() : "";
+        if (post.selftext() != null && !post.selftext().trim().isEmpty()) {
+            combinedText += " " + post.selftext();
+        }
+
+        Double sentimentScore = sentimentAnalyzer.analyzeSentiment(combinedText.trim());
         return new RedditPost(
                 post.id(),
                 post.timestamp(),
