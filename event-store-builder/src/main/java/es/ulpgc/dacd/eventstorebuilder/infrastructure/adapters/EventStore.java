@@ -2,6 +2,7 @@ package es.ulpgc.dacd.eventstorebuilder.infrastructure.adapters;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.ulpgc.dacd.eventstorebuilder.infrastructure.Deduplicator;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,10 +14,24 @@ public class EventStore {
     private static final String BASE_DIR = "src/main/eventstore";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final ObjectMapper mapper = new ObjectMapper();
+    private final Deduplicator deduplicator;
+
+    public EventStore() {
+        this.deduplicator = new Deduplicator();
+    }
 
     public void saveEvent(String topic, String json) {
         try {
             JsonNode obj = mapper.readTree(json);
+            if (topic.equals("RedditPost")) {
+                String postId = obj.get("id").asText();
+                if (deduplicator.isDuplicateRedditPost(postId)) {
+                    System.out.println("RedditPost duplicado omitido: " + postId);
+                    return; // Omite el evento duplicado
+                }
+                deduplicator.addRedditPostId(postId);
+            }
+
             String ss = obj.get("ss").asText();
             String ts = obj.get("ts").asText();
             LocalDate date = LocalDate.parse(ts.substring(0, 10), DateTimeFormatter.ISO_DATE);

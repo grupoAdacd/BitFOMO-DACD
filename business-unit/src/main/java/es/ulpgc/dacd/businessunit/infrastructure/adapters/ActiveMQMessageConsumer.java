@@ -1,5 +1,6 @@
 package es.ulpgc.dacd.businessunit.infrastructure.adapters;
 
+import es.ulpgc.dacd.businessunit.infrastructure.Deduplicator;
 import es.ulpgc.dacd.businessunit.infrastructure.ports.DatamartPort;
 import es.ulpgc.dacd.businessunit.infrastructure.ports.MessageConsumerPort;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,12 +15,14 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
     private final String url;
     private final DatamartPort datamartPort;
     private final ObjectMapper mapper;
+    private final Deduplicator deduplicator;
 
     public ActiveMQMessageConsumer(List<String> topics, String url, DatamartPort datamartPort) {
         this.topics = topics;
         this.url = url;
         this.datamartPort = datamartPort;
         this.mapper = new ObjectMapper();
+        this.deduplicator = new Deduplicator();
     }
 
     @Override
@@ -41,6 +44,12 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
                             String json = textMessage.getText();
                             Map<String, Object> eventData = mapper.readValue(json, Map.class);
                             if (topicName.equals("RedditPost")) {
+                                String postId = (String) eventData.get("id");
+                                if (deduplicator.isDuplicateRedditPost(postId)) {
+                                    System.out.println("RedditPost duplicado omitido: " + postId);
+                                    return; // Omite el mensaje duplicado
+                                }
+                                deduplicator.addRedditPostId(postId);
                                 datamartPort.storeRedditPost(eventData);
                                 System.out.println("Post recibido y almacenado: " + eventData);
                             } else if (topicName.equals("CryptoPrice")) {
