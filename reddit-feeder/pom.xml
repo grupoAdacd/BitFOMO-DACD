@@ -77,9 +77,6 @@
             <artifactId>jakarta.jms-api</artifactId>
             <version>3.1.0</version>
         </dependency>
-<<<<<<< HEAD
-=======
-
         <dependency>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
@@ -92,9 +89,6 @@
             <version>4.5.9</version>
             <classifier>models</classifier>
         </dependency>
-
-
->>>>>>> feature/reddit-feeder
     </dependencies>
 
 
