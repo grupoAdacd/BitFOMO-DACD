@@ -1,19 +1,15 @@
-from flask import Flask, request, jsonify
+import sys
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-app = Flask(__name__)
 analyzer = SentimentIntensityAnalyzer()
 
-@app.route('/analyze', methods=['POST'])
-def analyze_sentiment():
-    data = request.get_json()
-    text = data.get('text', '')
-    if not text:
-        return jsonify({'sentimentScore': 0.0})
-    # Analiza el texto con VADER
-    scores = analyzer.polarity_scores(text)
-    compound_score = scores['compound']  # Rango [-1, 1]
-    return jsonify({'sentimentScore': compound_score})
+text = sys.stdin.read().strip()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if not text:
+    print(0.0)
+    sys.exit(0)
+
+scores = analyzer.polarity_scores(text)
+compound_score = scores['compound']
+
+print(compound_score)

@@ -1,61 +1,55 @@
 package es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.SentimentAnalyzerPort;
-import okhttp3.*;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 public class SentimentAnalyzer implements SentimentAnalyzerPort {
-    private static final String API_URL = "http://localhost:5000/analyze";
-    private final OkHttpClient client;
-    private final ObjectMapper mapper;
-
-    public SentimentAnalyzer() {
-        this.client = new OkHttpClient();
-        this.mapper = new ObjectMapper();
-    }
+    private static final String PYTHON_COMMAND = "python";
+    private static final String SCRIPT_RELATIVE_PATH = "src/main/resources/sentiment_service.py";
 
     @Override
     public Double analyzeSentiment(String text) {
         if (text == null || text.trim().isEmpty()) {
-            return 0.0; // Neutral si el texto está vacío
+            return 0.0;
         }
 
         try {
-            String json = mapper.writeValueAsString(new TextRequest(text));
-            RequestBody body = RequestBody.create(json, MediaType.parse("application/json"));
+            String projectDir = System.getProperty("user.dir");
+            String scriptPath = projectDir + "/" + SCRIPT_RELATIVE_PATH.replace("/", File.separator);
 
-            Request request = new Request.Builder()
-                    .url(API_URL)
-                    .post(body)
-                    .build();
+            ProcessBuilder pb = new ProcessBuilder(PYTHON_COMMAND, scriptPath);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
 
-            try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    System.err.println("Error en la solicitud a la API de análisis de sentimientos: " + response);
-                    return 0.0;
-                }
-
-                JsonNode responseBody = mapper.readTree(response.body().string());
-                return responseBody.get("sentimentScore").asDouble();
+            try (OutputStreamWriter writer = new OutputStreamWriter(process.getOutputStream())) {
+                writer.write(text);
+                writer.flush();
             }
-        } catch (IOException e) {
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line = reader.readLine();
+                if (line != null) {
+                    return Double.parseDouble(line.trim());
+                }
+            }
+
+            try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                String errorLine;
+                while ((errorLine = errorReader.readLine()) != null) {
+                    System.err.println("Error del script Python: " + errorLine);
+                }
+            }
+
+            process.waitFor();
+
+            return 0.0;
+        } catch (Exception e) {
             System.err.println("Error al analizar el sentimiento: " + e.getMessage());
             return 0.0;
-        }
-    }
-
-    private static class TextRequest {
-        private final String text;
-
-        public TextRequest(String text) {
-            this.text = text;
-        }
-
-        public String getText() {
-            return text;
         }
     }
 }

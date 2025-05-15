@@ -1,4 +1,4 @@
-package es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure;
+package es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports;
 
 public interface FetchRedditPostsUseCase {
     void fetchAndPersistPosts();

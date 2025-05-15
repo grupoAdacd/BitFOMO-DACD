@@ -1,10 +1,9 @@
-package es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure;
+package es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters;
 
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.EventPublisherPort;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.ExternalRedditApiPort;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.PostRepositoryPort;
+import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.RedditPostEnricher;
+import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.*;
 import es.ulpgc.dacd.bitfomo.redditfeeder.domain.RedditPost;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.SentimentAnalyzerPort;
+
 import java.util.List;
 
 public class FetchRedditPostsUseCaseImpl implements FetchRedditPostsUseCase {

@@ -4,10 +4,10 @@ import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.ActiveMqEventP
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.JdbcPostRepository;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.RedditApiAdapter;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.SentimentAnalyzer;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.FetchRedditPostsUseCaseImpl;
+import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.FetchRedditPostsUseCaseImpl;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.EventPublisherPort;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.ExternalRedditApiPort;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.FetchRedditPostsUseCase;
+import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.FetchRedditPostsUseCase;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.PostRepositoryPort;
 import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.SentimentAnalyzerPort;
 import org.slf4j.Logger;
