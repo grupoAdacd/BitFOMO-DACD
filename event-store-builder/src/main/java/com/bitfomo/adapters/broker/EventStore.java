@@ -37,7 +37,7 @@ public class EventStore {
                 writer.newLine();
             }
         } catch (Exception e) {
-            System.err.println("Error guardando evento: " + e.getMessage());
+            System.err.println("Error saving event: " + e.getMessage());
         }
     }
 }
