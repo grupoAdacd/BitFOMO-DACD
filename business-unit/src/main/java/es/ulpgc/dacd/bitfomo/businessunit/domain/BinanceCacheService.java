@@ -8,11 +8,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 public class BinanceCacheService implements CacheServicePort {
     private Map<String, BinanceCacheResponse> financialCache = new HashMap<>();
-    private final String topic = "CryptoPrice";
+    private final String topic;
+
+    public BinanceCacheService(String topic) {
+        this.topic = topic;
+    }
 
 
     @Override
@@ -20,15 +25,15 @@ public class BinanceCacheService implements CacheServicePort {
         ActiveMQMessageConsumer consumer = new ActiveMQMessageConsumer(Arrays.asList(topic), brokerUrl);
         Map<String, BinanceCacheResponse> temporalCache = new HashMap<>(financialCache);
         for(Map<String, JSONObject> map: consumer.startConsuming()){
-            BinanceCacheResponse binanceResponse = new BinanceCacheResponse(Long.valueOf((String) map.get(topic).get("ts")), Double.valueOf((String) map.get(topic).get("openPrice")), Double.valueOf((String) map.get("CryptoPrice").get("closePrice")));
+            BinanceCacheResponse binanceResponse = new BinanceCacheResponse(Long.valueOf((String) map.get(topic).get("ts")), Double.valueOf((String) map.get(topic).get("openPrice")), Double.valueOf((String) map.get(topic).get("closePrice")));
             temporalCache.put((String) map.get(topic).get("ts"), binanceResponse);
         }
         setFinancialCache(temporalCache);
     }
 
     @Override
-    public void insertFromEventstore(String folder){
-        List<List<BinanceCacheResponse>> responses = extract(String.format("BitFOMO-DACD/src/main/eventstore/CryptoPrice/%s", folder));
+    public void insert(String folder){
+        List<List<BinanceCacheResponse>> responses = extract(String.format("src/main/eventstore/%s", folder));
         Map<String, BinanceCacheResponse> temporalCache = new HashMap<>(financialCache);
         for (List<BinanceCacheResponse> response: responses){
             for (BinanceCacheResponse object: response){
@@ -36,6 +41,9 @@ public class BinanceCacheService implements CacheServicePort {
             }
         }
         setFinancialCache(temporalCache);
+        if (temporalCache.isEmpty()) {
+            insertFromConsumer("tcp://localhost:61616");
+        }
     }
 
     @Override
@@ -60,6 +68,9 @@ public class BinanceCacheService implements CacheServicePort {
                 }
             }
         }
+        if (!fileResponse.isEmpty()) {
+            allResponses.add(fileResponse);
+        }
         return allResponses;
     }
 
@@ -69,15 +80,15 @@ public class BinanceCacheService implements CacheServicePort {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 JSONObject json = new JSONObject(line);
-                return new BinanceCacheResponse((long) json.get("ts"),
-                        (double) json.get("klineOpenPrice"),
-                        (double) json.get("klineClosePrice"));
+                long ts = Instant.parse(json.get("ts").toString()).toEpochMilli();
+                return new BinanceCacheResponse(ts,
+                        json.getDouble("openPrice"),
+                        json.getDouble("closePrice"));
             }
-            return null;
         } catch (IOException e){
             System.err.println("Error processing json line: " + e.getMessage());
-            return null;
         }
+        return null;
     }
 
     public Map<String, BinanceCacheResponse> getFinancialCache() {

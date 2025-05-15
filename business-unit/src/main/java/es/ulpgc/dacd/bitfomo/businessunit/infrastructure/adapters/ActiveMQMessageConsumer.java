@@ -23,9 +23,7 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
             Connection connection = new ActiveMQConnectionFactory(url).createConnection();
             connection.setClientID("BusinessUnit");
             connection.start();
-
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
             for (String topicName : topics) {
                 Map<String, JSONObject> eachResponse = new HashMap<>();
                 Topic topic = session.createTopic(topicName);
@@ -35,7 +33,7 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
                         if (message instanceof TextMessage textMessage) {
                             String responseString = textMessage.getText();
                             JSONObject jsonObject = new JSONObject(responseString);
-                            eachResponse.put((String) jsonObject.get("ss"), jsonObject);
+                            eachResponse.put(topicName, jsonObject);
                             fullResponse.add(eachResponse);
                         }
                     } catch (Exception e) {
@@ -43,10 +41,16 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
                     }
                 });
             }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
             return fullResponse;
         } catch (JMSException e){
             System.err.println("Error connecting: "+ e.getMessage());
         }
-        return null;
+        return fullResponse;
     }
 }

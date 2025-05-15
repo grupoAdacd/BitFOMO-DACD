@@ -1,22 +1,23 @@
 package es.ulpgc.dacd.bitfomo.businessunit.domain;
 
-import es.ulpgc.dacd.bitfomo.businessunit.domain.models.BinanceCacheResponse;
 import es.ulpgc.dacd.bitfomo.businessunit.domain.models.RedditCacheResponse;
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.adapters.ActiveMQMessageConsumer;
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.CacheServicePort;
-import org.apache.regexp.RE;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 public class RedditCacheService implements CacheServicePort {
-    private Map<String, RedditCacheResponse> postCache = new HashMap<>();
-    private final String topic = "RedditPost";
-
+    private Map<String, RedditCacheResponse> postCache = new HashMap<>();;
+    private final String topic;
+    public RedditCacheService(String topic) {
+        this.topic = topic;
+    }
     @Override
     public void insertFromConsumer(String brokerUrl){
         ActiveMQMessageConsumer consumer = new ActiveMQMessageConsumer(Arrays.asList(topic), brokerUrl);
@@ -27,20 +28,21 @@ public class RedditCacheService implements CacheServicePort {
         }
         setPostCache(temporalCache);
     }
-
     @Override
-    public void insertFromEventstore(String folder){
-        List<List<RedditCacheResponse>> responses = extract(String.format("BitFOMO-DACD/src/main/eventstore/CryptoPrice/%s", folder));
+    public void insert(String folder){
+        List<List<RedditCacheResponse>> responses = extract(String.format("src/main/eventstore/%s", folder));
         Map<String, RedditCacheResponse> temporalCache = new HashMap<>(postCache);
         for (List<RedditCacheResponse> response: responses){
             for (RedditCacheResponse object: response){
                 temporalCache.put(String.valueOf(object.ts()) , object);
-
             }
         }
         setPostCache(temporalCache);
+        // If no data was loaded from files, try consuming from broker
+        if (temporalCache.isEmpty()) {
+            insertFromConsumer("tcp://localhost:61616");
+        }
     }
-
     @Override
     public List<List<RedditCacheResponse>> extract(String folderPath) {
         List<List<RedditCacheResponse>> allResponses = new ArrayList<>();
@@ -63,32 +65,31 @@ public class RedditCacheService implements CacheServicePort {
                 }
             }
         }
+        if (!fileResponse.isEmpty()) {
+            allResponses.add(fileResponse);
+        }
         return allResponses;
     }
-
     @Override
     public RedditCacheResponse process(String fileName){
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 JSONObject json = new JSONObject(line);
+                long ts = Instant.parse(json.get("ts").toString()).toEpochMilli();
                 return new RedditCacheResponse(
-                        (long) json.get("ts"),
-                        (int) json.get("sentiment"));
+                        ts,
+                        json.getDouble("sentimentScore"));
             }
-            return null;
         } catch (IOException e){
             System.err.println("Error processing json line: " + e.getMessage());
-            return null;
         }
+        return null;
     }
-
     public Map<String, RedditCacheResponse> getPostCache() {
         return postCache;
     }
-
     public void setPostCache(Map<String, RedditCacheResponse> postCache) {
         this.postCache = postCache;
     }
 }
-

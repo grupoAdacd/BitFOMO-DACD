@@ -3,7 +3,7 @@ import java.util.List;
 
 public interface CacheServicePort {
     void insertFromConsumer(String url);
-    void insertFromEventstore(String folder);
+    void insert(String folder);
     <T> T extract(String folderPath);
     <T> T process(String fileName);
 
