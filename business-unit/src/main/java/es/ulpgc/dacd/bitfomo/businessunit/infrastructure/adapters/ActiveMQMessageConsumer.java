@@ -1,32 +1,24 @@
 package es.ulpgc.dacd.bitfomo.businessunit.infrastructure.adapters;
-
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.Deduplicator;
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.DatamartPort;
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.MessageConsumerPort;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.json.JSONObject;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 public class ActiveMQMessageConsumer implements MessageConsumerPort {
     private final List<String> topics;
     private final String url;
-    private final DatamartPort datamartPort;
-    private final ObjectMapper mapper;
-    private final Deduplicator deduplicator;
 
-    public ActiveMQMessageConsumer(List<String> topics, String url, DatamartPort datamartPort) {
+    public ActiveMQMessageConsumer(List<String> topics, String url) {
         this.topics = topics;
         this.url = url;
-        this.datamartPort = datamartPort;
-        this.mapper = new ObjectMapper();
-        this.deduplicator = new Deduplicator();
     }
 
     @Override
-    public void startConsuming() {
+    public List<Map<String, JSONObject>> startConsuming() {
+        List<Map<String, JSONObject>> fullResponse = new ArrayList<>();
         try {
             Connection connection = new ActiveMQConnectionFactory(url).createConnection();
             connection.setClientID("BusinessUnit");
@@ -35,35 +27,26 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             for (String topicName : topics) {
+                Map<String, JSONObject> eachResponse = new HashMap<>();
                 Topic topic = session.createTopic(topicName);
                 TopicSubscriber consumer = session.createDurableSubscriber(topic, topicName + "Subscription");
-
                 consumer.setMessageListener(message -> {
                     try {
                         if (message instanceof TextMessage textMessage) {
-                            String json = textMessage.getText();
-                            Map<String, Object> eventData = mapper.readValue(json, Map.class);
-                            if (topicName.equals("RedditPost")) {
-                                String postId = (String) eventData.get("id");
-                                if (deduplicator.isDuplicateRedditPost(postId)) {
-                                    System.out.println("RedditPost duplicado omitido: " + postId);
-                                    return; // Omite el mensaje duplicado
-                                }
-                                deduplicator.addRedditPostId(postId);
-                                datamartPort.storeRedditPost(eventData);
-                                System.out.println("Post recibido y almacenado: " + eventData);
-                            } else if (topicName.equals("CryptoPrice")) {
-                                datamartPort.storeCryptoPrice(eventData);
-                                System.out.println("Precio recibido y almacenado: " + eventData);
-                            }
+                            String responseString = textMessage.getText();
+                            JSONObject jsonObject = new JSONObject(responseString);
+                            eachResponse.put((String) jsonObject.get("ss"), jsonObject);
+                            fullResponse.add(eachResponse);
                         }
                     } catch (Exception e) {
                         System.err.println("Error procesando mensaje: " + e.getMessage());
                     }
                 });
             }
-        } catch (JMSException e) {
-            throw new RuntimeException("Error al iniciar el consumidor de mensajes: " + e.getMessage());
+            return fullResponse;
+        } catch (JMSException e){
+            System.err.println("Error connecting: "+ e.getMessage());
         }
+        return null;
     }
 }
