@@ -18,11 +18,19 @@ public class Application {
     private static final int PERIOD_MINUTES = 60;
 
     public static void main(String[] args) {
+        if (args.length < 2) {
+            System.err.println("Usage: java -jar binance-feeder.jar <brokerUrl> <queueName>");
+            System.exit(1);
+        }
+
+        String brokerUrl = args[0];
+        String queueName = args[1];
+
         DatabaseManager.initializeDatabase();
         JdbcKlineRepository klineRepository = new JdbcKlineRepository(DatabaseManager.getDatabaseUrl());
         ExchangeApiClient binanceApi = new ExchangeApiClient();
         CandlestickSerializer serializer = new CandlestickSerializer();
-        ActiveMQEventPublisher publisher = new ActiveMQEventPublisher("tcp://localhost:61616", "CryptoPrice", serializer);
+        ActiveMQEventPublisher publisher = new ActiveMQEventPublisher(brokerUrl, queueName, serializer);
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
