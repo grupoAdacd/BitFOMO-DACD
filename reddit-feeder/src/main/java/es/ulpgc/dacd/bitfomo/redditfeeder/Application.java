@@ -1,15 +1,7 @@
 package es.ulpgc.dacd.bitfomo.redditfeeder;
 
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.ActiveMqEventPublisher;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.JdbcPostRepository;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.RedditApiAdapter;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.SentimentAnalyzer;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.FetchRedditPostsUseCaseImpl;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.EventPublisherPort;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.ExternalRedditApiPort;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.FetchRedditPostsUseCase;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.PostRepositoryPort;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.SentimentAnalyzerPort;
+import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters.*;
+import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,26 +20,24 @@ public class Application {
 
     public static void main(String[] args) {
         if (args.length < 4) {
-            System.err.println("Usage: java -jar reddit-feeder.jar <userAgent> <jdbcUrl> <brokerUrl> <queueName>");
+            System.err.println("Usage: java -jar reddit-feeder.jar <userAgent> <brokerUrl> <queueName>");
             System.exit(1);
         }
         String userAgent = args[0];
-        String jdbcUrl = args[1];
         String brokerUrl = args[2];
         String queueName = args[3];
 
         ExternalRedditApiPort redditApi = new RedditApiAdapter(userAgent);
-        PostRepositoryPort postRepo = new JdbcPostRepository(jdbcUrl);
         EventPublisherPort publisher = new ActiveMqEventPublisher(brokerUrl, queueName);
         SentimentAnalyzerPort sentimentAnalyzer = new SentimentAnalyzer();
 
         FetchRedditPostsUseCase fetchPosts = new FetchRedditPostsUseCaseImpl(
-                redditApi, postRepo, SUBREDDITS, POST_LIMIT, publisher, sentimentAnalyzer);
+                redditApi, SUBREDDITS, POST_LIMIT, publisher, sentimentAnalyzer);
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                fetchPosts.fetchAndPersistPosts();
+                fetchPosts.fetchAndPublishPosts();
                 logger.info("Fetch & persist completed successfully");
             } catch (Exception ex) {
                 logger.error("Error in fetchAndPersistPosts", ex);

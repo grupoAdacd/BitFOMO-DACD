@@ -2,8 +2,6 @@ package es.ulpgc.dacd.bitfomo.binancefeeder;
 
 import es.ulpgc.dacd.bitfomo.binancefeeder.adapters.ActiveMQEventPublisher;
 import es.ulpgc.dacd.bitfomo.binancefeeder.adapters.ExchangeApiClient;
-import es.ulpgc.dacd.bitfomo.binancefeeder.adapters.DatabaseManager;
-import es.ulpgc.dacd.bitfomo.binancefeeder.adapters.JdbcKlineRepository;
 import es.ulpgc.dacd.bitfomo.binancefeeder.domain.Candlestick;
 import es.ulpgc.dacd.bitfomo.binancefeeder.transformer.CandlestickSerializer;
 
@@ -25,8 +23,6 @@ public class Application {
         String brokerUrl = args[0];
         String queueName = args[1];
 
-        DatabaseManager.initializeDatabase();
-        JdbcKlineRepository klineRepository = new JdbcKlineRepository(DatabaseManager.getDatabaseUrl());
         ExchangeApiClient binanceApi = new ExchangeApiClient();
         CandlestickSerializer serializer = new CandlestickSerializer();
         ActiveMQEventPublisher publisher = new ActiveMQEventPublisher(brokerUrl, queueName, serializer);
@@ -39,14 +35,10 @@ public class Application {
                     System.out.println("Obtaining Arrays of Klines...");
                     for (Candlestick kline : KlinesList) {
                         try {
-                            klineRepository.save(kline);
-                            System.out.println("Inserting data in database..." +
-                                    new java.util.Date(kline.getKlineOpenTime()) + " - " +
-                                    new java.util.Date(kline.getKlineCloseTime()));
                             publisher.publish(kline);
                             System.out.println("Publishing events...");
                         } catch (Exception e) {
-                            System.err.println("Error Publishing/Saving events..." + e);
+                            System.err.println("Error Publishing events..." + e);
                         }
                     }
                 }
