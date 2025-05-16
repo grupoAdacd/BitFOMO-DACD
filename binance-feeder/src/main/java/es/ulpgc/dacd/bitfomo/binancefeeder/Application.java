@@ -8,14 +8,13 @@ import es.ulpgc.dacd.bitfomo.binancefeeder.domain.Candlestick;
 import es.ulpgc.dacd.bitfomo.binancefeeder.transformer.CandlestickSerializer;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Application {
     private static final int INITIAL_DELAY_SECONDS = 0;
-    private static final int PERIOD_MINUTES = 60;
+    private static final int PERIOD_MINUTES = 5; // Fetch cada 5 minutos
 
     public static void main(String[] args) {
         if (args.length < 2) {
@@ -36,19 +35,14 @@ public class Application {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 System.out.println("Running scheduled fetch at: " + System.currentTimeMillis());
-                long lastKlineTime = klineRepository.getLastKline();
-                System.out.println("Last Date inserted in DB: " + (lastKlineTime > 0 ? new Date(lastKlineTime) : "Theres no date registers"));
-                if (lastKlineTime > 0) {
-                    binanceApi.setStartDateTime(lastKlineTime + 1);
-                }
                 for (ArrayList<Candlestick> KlinesList : binanceApi.obtainFullResponse()) {
                     System.out.println("Obtaining Arrays of Klines...");
                     for (Candlestick kline : KlinesList) {
                         try {
                             klineRepository.save(kline);
                             System.out.println("Inserting data in database..." +
-                                    new Date(kline.getKlineOpenTime()) + " - " +
-                                    new Date(kline.getKlineCloseTime()));
+                                    new java.util.Date(kline.getKlineOpenTime()) + " - " +
+                                    new java.util.Date(kline.getKlineCloseTime()));
                             publisher.publish(kline);
                             System.out.println("Publishing events...");
                         } catch (Exception e) {
