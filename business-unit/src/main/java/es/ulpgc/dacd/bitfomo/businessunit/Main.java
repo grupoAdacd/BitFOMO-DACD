@@ -1,12 +1,11 @@
 package es.ulpgc.dacd.bitfomo.businessunit;
 
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.adapters.BusinessUnitService;
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.CliUserInterface;
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.DatamartStorer;
+import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.adapters.BusinessUnitService;
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.BusinessUnitServicePort;
 
 import java.io.File;
-import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +19,6 @@ public class Main {
         String csvPath = args[0];
         String topic1 = args[1];
         String topic2 = args[2];
-
         DatamartStorer storer = new DatamartStorer(csvPath, topic1, topic2);
         try {
             storer.store();
@@ -29,7 +27,6 @@ public class Main {
             e.printStackTrace();
         }
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 storer.store();

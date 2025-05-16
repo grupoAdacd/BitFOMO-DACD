@@ -29,7 +29,8 @@ public class CliUserInterface {
                 8 888888888P    8 8888       8 8888                 8 8888             `8888888P'  ,8'         `         `8.`8888.  `8888888P'    \s
                 """;
         System.out.print(BITFOMO);
-        System.out.println("\n--- Type 'help' to see available commands or 'exit' to quit ---");
+        System.out.println("Type 'help' to see available commands or 'exit' to quit:");
+
         while (true) {
             System.out.print("> ");
             String input = scanner.nextLine().trim();
@@ -49,7 +50,7 @@ public class CliUserInterface {
             try {
                 switch (parts[0].toLowerCase()) {
                     case "recommend":
-                        handleRecommendCommand();
+                        handleRecommendCommand(parts);
                         break;
                     default:
                         System.out.println("Unknown command. Only 'recommend' is available. Type 'help' for details.");
@@ -61,20 +62,25 @@ public class CliUserInterface {
 
         scanner.close();
     }
+
     private void showHelp() {
         System.out.println("Available commands:");
-        System.out.println("  recommend       - Get investment recommendation for a cryptocurrency");
-        System.out.println("                    Compares the open price from 6 hours ago with");
-        System.out.println("                    the current close price to recommend whether to invest");
-        System.out.println("  help            - Shows this help message");
-        System.out.println("  exit            - Exits the application");
+        System.out.println("  recommend     - Get investment recommendation for BTC");
+        System.out.println("                  Compares the open price from 6 hours ago with");
+        System.out.println("                  the current close price to recommend whether to invest");
+        System.out.println("  help           - Shows this help message");
+        System.out.println("  exit           - Exits the application");
+
     }
 
-    private void handleRecommendCommand() {
+    private void handleRecommendCommand(String[] parts) {
+
         String endTime = Instant.now().toString();
         String startTime = Instant.now().minus(6, ChronoUnit.HOURS).toString();
+
+        System.out.println("Analyzing price movement for BTC...");
         System.out.println("Comparing open price from 6 hours ago with current close price...");
-        String recommendation = businessUnitService.generateRecommendation(startTime, endTime);
+        String recommendation = businessUnitService.generateRecommendation("", startTime, endTime);
         System.out.println(recommendation);
     }
 }

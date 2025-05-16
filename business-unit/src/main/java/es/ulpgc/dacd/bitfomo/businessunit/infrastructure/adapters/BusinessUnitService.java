@@ -1,3 +1,4 @@
+
 package es.ulpgc.dacd.bitfomo.businessunit.infrastructure.adapters;
 
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.BusinessUnitServicePort;
@@ -18,7 +19,7 @@ public class BusinessUnitService implements BusinessUnitServicePort {
     }
 
     @Override
-    public String generateRecommendation(String startTime, String endTime) {
+    public String generateRecommendation(String subreddit, String startTime, String endTime) {
         long startTimestamp = Instant.parse(startTime).toEpochMilli();
         long endTimestamp = Instant.parse(endTime).toEpochMilli();
         List<Recommendation> data = readDataFromCSV();
@@ -67,6 +68,7 @@ public class BusinessUnitService implements BusinessUnitServicePort {
         result.append("===========================");
         return result.toString();
     }
+
     private List<Recommendation> readDataFromCSV() {
         List<Recommendation> recommendations = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(csvPath))) {
@@ -79,11 +81,15 @@ public class BusinessUnitService implements BusinessUnitServicePort {
                 }
                 String[] parts = line.split(",");
                 if (parts.length >= 4) {
-                    long ts = Long.parseLong(parts[0].trim());
-                    double openPrice = Double.parseDouble(parts[1].trim());
-                    double closePrice = Double.parseDouble(parts[2].trim());
-                    double sentiment = Double.parseDouble(parts[3].trim());
-                    recommendations.add(new Recommendation(ts, openPrice, closePrice, sentiment));
+                    try {
+                        long ts = Long.parseLong(parts[0].trim());
+                        double openPrice = Double.parseDouble(parts[1].trim());
+                        double closePrice = Double.parseDouble(parts[2].trim());
+                        double sentiment = Double.parseDouble(parts[3].trim());
+
+                        recommendations.add(new Recommendation(ts, openPrice, closePrice, sentiment));
+                    } catch (NumberFormatException e) {
+                    }
                 }
             }
         } catch (IOException e) {
