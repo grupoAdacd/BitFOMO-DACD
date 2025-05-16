@@ -4,26 +4,24 @@ import java.time.Instant;
 
 public record RedditPost(
         String id,
-        String ts, //TODO Instant
+        Instant ts,
         String ss,
         String subreddit,
         String author,
         String title,
         String selftext,
-        Double sentimentScore,
-        Instant timestamp
+        Double sentimentScore
 ) {
-    public RedditPost(String id, Instant timestamp, String subreddit, String author, String title, String selftext, Double sentimentScore) {
+    public RedditPost(String id, Instant createdUtc, String subreddit, String author, String title, String selftext, Double sentimentScore) {
         this(
                 id,
-                timestamp.toString(),
+                createdUtc,
                 "reddit-feeder",
                 subreddit,
                 author,
                 title,
                 selftext,
-                sentimentScore,
-                timestamp
+                sentimentScore
         );
     }
 }

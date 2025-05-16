@@ -34,6 +34,7 @@ public class EventStore {
 
             String ss = obj.get("ss").asText();
             String ts = obj.get("ts").asText();
+            System.out.println("Saving event with ts: " + ts);
             LocalDate date = LocalDate.parse(ts.substring(0, 10), DateTimeFormatter.ISO_DATE);
 
             String dirPath = String.format("%s/%s/%s", BASE_DIR, topic, ss);

@@ -4,6 +4,7 @@ import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.EventPublisherPor
 import es.ulpgc.dacd.bitfomo.redditfeeder.domain.RedditPost;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import jakarta.jms.*;
@@ -17,7 +18,10 @@ public class ActiveMqEventPublisher implements EventPublisherPort {
         this.connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
         this.topicName = topicName;
         this.mapper = new ObjectMapper();
-        this.mapper.registerModule(new JavaTimeModule());
+        JavaTimeModule module = new JavaTimeModule();
+        this.mapper.registerModule(module);
+        this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.mapper.enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
     }
 
     @Override

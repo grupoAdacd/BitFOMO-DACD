@@ -3,10 +3,18 @@ package es.ulpgc.dacd.bitfomo.binancefeeder.transformer;
 import es.ulpgc.dacd.bitfomo.binancefeeder.domain.Candlestick;
 import org.json.JSONObject;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+
 public class CandlestickSerializer {
+    private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
+            .appendInstant(3)
+            .toFormatter();
+
     public JSONObject serialize(Candlestick candleStick) {
+        System.out.println("Serializing Candlestick with ts: " + candleStick.getTs());
         JSONObject candleStickObject = new JSONObject();
-        candleStickObject.put("ts", candleStick.getTs());
+        candleStickObject.put("ts", FORMATTER.format(candleStick.getTs()));
         candleStickObject.put("ss", candleStick.getSs());
         candleStickObject.put("klineOpenTime", candleStick.getKlineOpenTime());
         candleStickObject.put("openPrice", candleStick.getOpenPrice());

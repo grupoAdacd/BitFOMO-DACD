@@ -3,7 +3,7 @@ package es.ulpgc.dacd.bitfomo.binancefeeder.domain;
 import java.time.Instant;
 
 public class Candlestick {
-    private String ts;
+    private final Instant ts;
     private final String ss;
     private long KlineOpenTime;
     private String OpenPrice;
@@ -16,7 +16,7 @@ public class Candlestick {
     private int NumberOfTrades;
 
     public Candlestick(long klineOpenTime, String openPrice, String highPrice, String lowPrice, String closePrice, String volume, long klineCloseTime, String quoteAssetVolume, int numberOfTrades) {
-        ts = Instant.now().toString();
+        ts = Instant.ofEpochMilli(klineCloseTime); // Usa KlineCloseTime para ts
         ss = "binance-feeder";
         KlineOpenTime = klineOpenTime;
         OpenPrice = openPrice;
@@ -105,13 +105,11 @@ public class Candlestick {
         return Double.parseDouble(parameter);
     }
 
-    public String getTs() {
+    public Instant getTs() {
         return ts;
     }
 
-    public void setTs(String ts) {
-        this.ts = ts;
-    }
+    // Setter eliminado para evitar sobrescrituras
 
     public String getSs() {
         return ss;

@@ -19,13 +19,13 @@ public class Application {
     private static final int PERIOD_MINUTES = 5;
 
     public static void main(String[] args) {
-        if (args.length < 4) {
+        if (args.length < 3) {
             System.err.println("Usage: java -jar reddit-feeder.jar <userAgent> <brokerUrl> <queueName>");
             System.exit(1);
         }
         String userAgent = args[0];
-        String brokerUrl = args[2];
-        String queueName = args[3];
+        String brokerUrl = args[1];
+        String queueName = args[2];
 
         ExternalRedditApiPort redditApi = new RedditApiAdapter(userAgent);
         EventPublisherPort publisher = new ActiveMqEventPublisher(brokerUrl, queueName);

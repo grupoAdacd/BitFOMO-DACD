@@ -19,7 +19,7 @@ public class RedditPostEnricher {
         Double sentimentScore = sentimentAnalyzer.analyzeSentiment(combinedText.trim());
         return new RedditPost(
                 post.id(),
-                post.timestamp(),
+                post.ts(),
                 post.subreddit(),
                 post.author(),
                 post.title(),

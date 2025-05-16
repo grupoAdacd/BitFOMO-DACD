@@ -14,20 +14,18 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 public class ExchangeApiClient extends ExchangeDataFetcher {
-    private static long lastKlineTime = -1; // Variable estática para el último timestamp
-    private static final String LAST_KLINE_FILE = "last_kline_time.txt"; // Archivo en el directorio raíz
-    private static final long DEFAULT_INITIAL_RANGE_MILLIS = 7 * 24 * 60 * 60 * 1000L; // 1 semana en milisegundos
+    private static long lastKlineTime = -1;
+    private static final String LAST_KLINE_FILE = "last_kline_time.txt";
+    private static final long DEFAULT_INITIAL_RANGE_MILLIS = 7 * 24 * 60 * 60 * 1000L;
     private long startDateTime;
     private long endDateTime;
-    private long intervalMillis = 5 * 60 * 1000; // Intervalo de 5 minutos
+    private long intervalMillis = 5 * 60 * 1000;
     private int MAX_ITER = 1;
 
     public ExchangeApiClient() {
-        // Lee el último timestamp del archivo al iniciar
         loadLastKlineTime();
-        // Establece el startDateTime inicial
         if (lastKlineTime == -1) {
-            startDateTime = System.currentTimeMillis() - DEFAULT_INITIAL_RANGE_MILLIS; // 1 semana atrás
+            startDateTime = System.currentTimeMillis() - DEFAULT_INITIAL_RANGE_MILLIS;
         } else {
             startDateTime = lastKlineTime + 1;
         }
@@ -42,7 +40,7 @@ public class ExchangeApiClient extends ExchangeDataFetcher {
             }
         } catch (Exception e) {
             System.err.println("Error al leer last_kline_time.txt, usando rango inicial: " + e.getMessage());
-            lastKlineTime = -1; // Si hay error, usamos el rango inicial
+            lastKlineTime = -1;
         }
     }
 
@@ -72,9 +70,9 @@ public class ExchangeApiClient extends ExchangeDataFetcher {
                 if (binanceKlineArray != null && !binanceKlineArray.isEmpty()) {
                     fullResponse.add(binanceKlineArray);
                     Candlestick lastKline = binanceKlineArray.get(binanceKlineArray.size() - 1);
-                    lastKlineTime = lastKline.getKlineCloseTime(); // Actualiza el último timestamp
-                    saveLastKlineTime(); // Guarda el timestamp en el archivo
-                    setStartDateTime(lastKline.getKlineCloseTime() + 1); // Actualiza para el próximo fetch
+                    lastKlineTime = lastKline.getKlineCloseTime();
+                    saveLastKlineTime();
+                    setStartDateTime(lastKline.getKlineCloseTime() + 1);
                 }
             } catch (Exception e) {
                 System.err.println("Error processing response: " + e.getMessage());
