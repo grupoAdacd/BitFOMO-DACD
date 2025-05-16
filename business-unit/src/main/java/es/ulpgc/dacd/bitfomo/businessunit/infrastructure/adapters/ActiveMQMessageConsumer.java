@@ -3,8 +3,8 @@ import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.MessageConsumerPo
 import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.json.JSONObject;
-
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 
 public class ActiveMQMessageConsumer implements MessageConsumerPort {
@@ -19,37 +19,52 @@ public class ActiveMQMessageConsumer implements MessageConsumerPort {
     @Override
     public List<Map<String, JSONObject>> startConsuming() {
         List<Map<String, JSONObject>> fullResponse = new ArrayList<>();
+        Connection connection = null;
+        Session session = null;
         try {
-            Connection connection = new ActiveMQConnectionFactory(url).createConnection();
-            connection.setClientID("BusinessUnit");
+            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+            connection = connectionFactory.createConnection();
+            connection.setClientID("BusinessUnit-" + System.currentTimeMillis());
             connection.start();
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            CountDownLatch latch = new CountDownLatch(topics.size());
             for (String topicName : topics) {
-                Map<String, JSONObject> eachResponse = new HashMap<>();
-                Topic topic = session.createTopic(topicName);
-                TopicSubscriber consumer = session.createDurableSubscriber(topic, topicName + "Subscription");
-                consumer.setMessageListener(message -> {
-                    try {
-                        if (message instanceof TextMessage textMessage) {
-                            String responseString = textMessage.getText();
-                            JSONObject jsonObject = new JSONObject(responseString);
-                            eachResponse.put(topicName, jsonObject);
-                            fullResponse.add(eachResponse);
+                try {
+                    Topic topic = session.createTopic(topicName);
+                    MessageConsumer consumer = session.createConsumer(topic);
+                    consumer.setMessageListener(message -> {
+                        try {
+                            if (message instanceof TextMessage textMessage) {
+                                String responseString = textMessage.getText();
+                                JSONObject jsonObject = new JSONObject(responseString);
+                                Map<String, JSONObject> eachResponse = new HashMap<>();
+                                eachResponse.put(topicName, jsonObject);
+                                fullResponse.add(eachResponse);
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error processing message from topic " + topicName + ": " + e.getMessage());
+                        } finally {
+                            latch.countDown();
                         }
-                    } catch (Exception e) {
-                        System.err.println("Error procesando mensaje: " + e.getMessage());
-                    }
-                });
+                    });
+                } catch (JMSException e) {
+                    System.err.println("Error setting up consumer for topic " + topicName + ": " + e.getMessage());
+                    latch.countDown();
+                }
             }
+        } catch (JMSException e) {
+            System.err.println("Error connecting to ActiveMQ: " + e.getMessage());
+        } finally {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                if (session != null) {
+                    session.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (JMSException e) {
+                System.err.println("Error closing ActiveMQ connection: " + e.getMessage());
             }
-
-            return fullResponse;
-        } catch (JMSException e){
-            System.err.println("Error connecting: "+ e.getMessage());
         }
         return fullResponse;
     }

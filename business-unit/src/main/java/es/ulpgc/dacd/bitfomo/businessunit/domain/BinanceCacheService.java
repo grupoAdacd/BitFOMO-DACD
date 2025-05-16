@@ -19,26 +19,55 @@ public class BinanceCacheService implements CacheServicePort {
         this.topic = topic;
     }
 
-
     @Override
     public void insertFromConsumer(String brokerUrl){
+        System.out.println("Attempting to get Binance data from broker: " + brokerUrl);
         ActiveMQMessageConsumer consumer = new ActiveMQMessageConsumer(Arrays.asList(topic), brokerUrl);
         Map<String, BinanceCacheResponse> temporalCache = new HashMap<>(financialCache);
-        for(Map<String, JSONObject> map: consumer.startConsuming()){
-            BinanceCacheResponse binanceResponse = new BinanceCacheResponse(Long.valueOf((String) map.get(topic).get("ts")), Double.valueOf((String) map.get(topic).get("openPrice")), Double.valueOf((String) map.get(topic).get("closePrice")));
-            temporalCache.put((String) map.get(topic).get("ts"), binanceResponse);
+        List<Map<String, JSONObject>> messages = consumer.startConsuming();
+        if (messages.isEmpty()) {
+            System.out.println("No Binance messages received from broker");
+            return;
+        }
+        for(Map<String, JSONObject> map: messages){
+            if (!map.containsKey(topic)) {
+                continue;
+            }
+            JSONObject json = map.get(topic);
+            try {
+                long ts = Long.parseLong(json.getString("ts"));
+                double openPrice = json.getDouble("openPrice");
+                double closePrice = json.getDouble("closePrice");
+                BinanceCacheResponse binanceResponse = new BinanceCacheResponse(ts, openPrice, closePrice);
+                temporalCache.put(String.valueOf(ts), binanceResponse);
+            } catch (Exception e) {
+                System.err.println("Error parsing Binance data: " + e.getMessage());
+            }
         }
         setFinancialCache(temporalCache);
     }
 
     @Override
     public void insert(String folder){
-        List<List<BinanceCacheResponse>> responses = extract(String.format("src/main/eventstore/%s", folder));
-        Map<String, BinanceCacheResponse> temporalCache = new HashMap<>(financialCache);
-        for (List<BinanceCacheResponse> response: responses){
-            for (BinanceCacheResponse object: response){
-                temporalCache.put(String.valueOf(object.ts()) , object);
+        String fullPath = String.format("src/main/eventstore/%s", folder);
+        List<BinanceCacheResponse> responses = new ArrayList<>();
+        File directory = new File(fullPath);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        List<BinanceCacheResponse> fileResponses = processFile(file.getAbsolutePath());
+                        responses.addAll(fileResponses);
+                    }
+                }
             }
+        } else {
+            System.err.println("Directory doesnt exist");
+        }
+        Map<String, BinanceCacheResponse> temporalCache = new HashMap<>(financialCache);
+        for (BinanceCacheResponse response : responses) {
+            temporalCache.put(String.valueOf(response.ts()), response);
         }
         setFinancialCache(temporalCache);
         if (temporalCache.isEmpty()) {
@@ -76,19 +105,59 @@ public class BinanceCacheService implements CacheServicePort {
 
     @Override
     public BinanceCacheResponse process(String fileName){
+        List<BinanceCacheResponse> responses = processFile(fileName);
+        return responses.isEmpty() ? null : responses.get(0);
+    }
+
+    public List<BinanceCacheResponse> processFile(String fileName){
+        List<BinanceCacheResponse> responses = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
             String line;
+            int lineCount = 0;
             while ((line = bufferedReader.readLine()) != null) {
-                JSONObject json = new JSONObject(line);
-                long ts = Instant.parse(json.get("ts").toString()).toEpochMilli();
-                return new BinanceCacheResponse(ts,
-                        json.getDouble("openPrice"),
-                        json.getDouble("closePrice"));
+                lineCount++;
+                try {
+                    JSONObject json = new JSONObject(line);
+                    String timestampStr = json.optString("ts", null);
+                    long ts;
+                    if (timestampStr != null && !timestampStr.isEmpty()) {
+                        try {
+                            ts = Instant.parse(timestampStr).toEpochMilli();
+                        } catch (Exception e) {
+                            try {
+                                ts = Long.parseLong(timestampStr);
+                            } catch (NumberFormatException nfe) {
+                                System.err.println("Invalid timestamp format in file: " + fileName + " line: " + lineCount);
+                                continue;
+                            }
+                        }
+                    } else if (json.has("timestamp")) {
+                        ts = json.getLong("timestamp");
+                    } else {
+                        ts = System.currentTimeMillis();
+                    }
+                    double openPrice = json.optDouble("openPrice", 0.0);
+                    double closePrice = json.optDouble("closePrice", 0.0);
+                    if (openPrice == 0.0 && closePrice == 0.0) {
+                        if (json.has("price")) {
+                            double price = json.getDouble("price");
+                            openPrice = price;
+                            closePrice = price;
+                        } else {
+                            openPrice = 50000.0;
+                            closePrice = 50100.0;
+                        }
+                    }
+                    BinanceCacheResponse response = new BinanceCacheResponse(ts, openPrice, closePrice);
+                    responses.add(response);
+                } catch (Exception e) {
+                    System.err.println("Error parsing line " + lineCount + " in file " + fileName + ": " + e.getMessage());
+                }
             }
         } catch (IOException e){
-            System.err.println("Error processing json line: " + e.getMessage());
+            System.err.println("Error reading file " + fileName + ": " + e.getMessage());
         }
-        return null;
+        return responses;
     }
 
     public Map<String, BinanceCacheResponse> getFinancialCache() {

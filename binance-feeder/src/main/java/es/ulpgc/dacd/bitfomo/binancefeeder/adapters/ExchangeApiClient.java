@@ -10,7 +10,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 
 public class ExchangeApiClient extends ExchangeDataFetcher {
-    private long startDateTime = LocalDateTime.of(2025,05,14,00,00,01).toInstant(ZoneOffset.UTC).toEpochMilli();
+    private long startDateTime = LocalDateTime.of(2025,05,12,00,00,01).toInstant(ZoneOffset.UTC).toEpochMilli();
     private long endDateTime = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
     private long intervalMillis = 1 * 60 * 60 * 1000;
     private int MAX_ITER = 1;

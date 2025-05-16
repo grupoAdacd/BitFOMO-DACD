@@ -31,7 +31,6 @@ public class Application {
             System.err.println("Usage: java -jar reddit-feeder.jar <userAgent> <jdbcUrl> <brokerUrl> <queueName>");
             System.exit(1);
         }
-
         String userAgent = args[0];
         String jdbcUrl = args[1];
         String brokerUrl = args[2];

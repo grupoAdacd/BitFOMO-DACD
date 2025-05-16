@@ -11,52 +11,68 @@ import java.io.IOException;
 import java.util.List;
 
 public class DatamartStorer implements DatamartStorerPort {
-    private String csvPath;
+    private final String csvPath;
     private final String topic1;
     private final String topic2;
+    private final BinanceCacheService binanceCacheService;
+    private final RedditCacheService redditCacheService;
+    private final CacheServiceEnsembler ensembler;
 
     public DatamartStorer(String csvPath, String topic1, String topic2) {
         this.csvPath = csvPath;
         this.topic1 = topic1;
         this.topic2 = topic2;
+        this.binanceCacheService = new BinanceCacheService(topic1);
+        this.redditCacheService = new RedditCacheService(topic2);
+        this.ensembler = new CacheServiceEnsembler(binanceCacheService, redditCacheService);
     }
 
     @Override
     public void store() {
-        System.out.println("Starting data collection and storage process...");
-        BinanceCacheService binanceCacheService = new BinanceCacheService(topic1);
-        RedditCacheService redditCacheService = new RedditCacheService(topic2);
-        CacheServiceEnsembler ensembler = new CacheServiceEnsembler(binanceCacheService, redditCacheService);
-        List<Recommendation> recommendations = ensembler.assembly();
-        System.out.println("Generated " + recommendations.size() + " recommendations");
         File csvFile = new File(csvPath);
         File parentDir = csvFile.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
-            parentDir.mkdirs();
-        }
-        try (FileWriter writer = new FileWriter(csvPath)) {
-            writer.append("ts,openPrice,closePrice,sentiment\n");
-
-            if (recommendations.isEmpty()) {
-                System.out.println("No recommendations to save to CSV");
-            } else {
-                for (Recommendation recommendation : recommendations) {
-                    writer.append(String.valueOf(recommendation.ts()))
-                            .append(",")
-                            .append(String.valueOf(recommendation.openPrice()))
-                            .append(",")
-                            .append(String.valueOf(recommendation.closePrice()))
-                            .append(",")
-                            .append(String.valueOf(recommendation.sentiment()))
-                            .append("\n");
-                }
-                System.out.println("Successfully saved " + recommendations.size() + " records to: " + csvPath);
+            if (!parentDir.mkdirs()) {
+                System.err.println("Failed to create directory structure for: " + csvPath);
             }
-
+        }
+        File eventstoreDir = new File("src/main/eventstore");
+        if (!eventstoreDir.exists()) {
+            if (!eventstoreDir.mkdirs()) {
+                System.err.println("Failed to create eventstore directory");
+            }
+        }
+        createDirectoryIfNotExists("src/main/eventstore/CryptoPrice/binance-feeder");
+        createDirectoryIfNotExists("src/main/eventstore/RedditPost/reddit-feeder");
+        List<Recommendation> recommendations = ensembler.assembly();
+        boolean isNewFile = !csvFile.exists();
+        try (FileWriter writer = new FileWriter(csvPath, !isNewFile)) {
+            if (isNewFile) {
+                writer.append("ts,openPrice,closePrice,sentiment\n");
+            }
+            for (Recommendation recommendation : recommendations) {
+                String line = recommendation.ts() + "," +
+                        recommendation.openPrice() + "," +
+                        recommendation.closePrice() + "," +
+                        recommendation.sentiment() + "\n";
+                writer.append(line);
+            }
             writer.flush();
         } catch (IOException e) {
             System.err.println("Error writing to CSV file: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Error writing to CSV file: " + e.getMessage(), e);
+        }
+    }
+
+    private void createDirectoryIfNotExists(String path) {
+        File dir = new File(path);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                System.err.println("Failed to create directory: " + path);
+            } else {
+                System.out.println("Created directory: " + path);
+            }
         }
     }
 }

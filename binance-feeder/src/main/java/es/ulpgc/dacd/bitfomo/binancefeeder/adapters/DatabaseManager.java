@@ -11,6 +11,7 @@ public class DatabaseManager {
     public static void initializeDatabase() {
         try (Connection conn = DriverManager.getConnection(DATABASE_URL);
              Statement stmt = conn.createStatement()) {
+            String del = "DROP TABLE BinanceEvents";
             String sqlBinance = "CREATE TABLE IF NOT EXISTS BinanceEvents (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "Kline_Open_Time DATE," +
@@ -23,6 +24,7 @@ public class DatabaseManager {
                     "quote_asset_volume REAL," +
                     "number_of_trades INTEGER" +
                     ");";
+            stmt.execute(del);
             stmt.execute(sqlBinance);
             System.out.println("Database successfully initialized.");
         } catch (SQLException e) {
