@@ -1,7 +1,6 @@
-package es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure;
+package es.ulpgc.dacd.bitfomo.redditfeeder.businessunitstuff;
 
 import es.ulpgc.dacd.bitfomo.redditfeeder.domain.RedditPost;
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.SentimentAnalyzerPort;
 
 public class RedditPostEnricher {
     private final SentimentAnalyzerPort sentimentAnalyzer;
@@ -23,8 +22,7 @@ public class RedditPostEnricher {
                 post.subreddit(),
                 post.author(),
                 post.title(),
-                post.selftext(),
-                sentimentScore
+                post.selftext()
         );
     }
 }

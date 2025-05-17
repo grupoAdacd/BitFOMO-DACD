@@ -1,6 +1,4 @@
-package es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.adapters;
-
-import es.ulpgc.dacd.bitfomo.redditfeeder.infrastructure.ports.SentimentAnalyzerPort;
+package es.ulpgc.dacd.bitfomo.redditfeeder.businessunitstuff;
 
 import java.io.BufferedReader;
 import java.io.File;

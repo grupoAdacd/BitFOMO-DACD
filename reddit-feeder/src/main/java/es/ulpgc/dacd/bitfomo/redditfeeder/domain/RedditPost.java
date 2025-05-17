@@ -9,10 +9,9 @@ public record RedditPost(
         String subreddit,
         String author,
         String title,
-        String selftext,
-        Double sentimentScore
+        String selftext
 ) {
-    public RedditPost(String id, Instant createdUtc, String subreddit, String author, String title, String selftext, Double sentimentScore) {
+    public RedditPost(String id, Instant createdUtc, String subreddit, String author, String title, String selftext) {
         this(
                 id,
                 createdUtc,
@@ -20,8 +19,7 @@ public record RedditPost(
                 subreddit,
                 author,
                 title,
-                selftext,
-                sentimentScore
+                selftext
         );
     }
 }
