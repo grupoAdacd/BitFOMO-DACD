@@ -16,10 +16,10 @@ import java.util.ArrayList;
 public class ExchangeApiClient extends ExchangeDataFetcher {
     private static long lastKlineTime = -1;
     private static final String LAST_KLINE_FILE = "last_kline_time.txt";
-    private static final long DEFAULT_INITIAL_RANGE_MILLIS = 7 * 24 * 60 * 60 * 1000L;
+    private static final long DEFAULT_INITIAL_RANGE_MILLIS = 60 * 1000L;
     private long startDateTime;
     private long endDateTime;
-    private long intervalMillis = 5 * 60 * 1000;
+    private long intervalMillis = 60 * 1000L;
     private int MAX_ITER = 1;
 
     public ExchangeApiClient() {

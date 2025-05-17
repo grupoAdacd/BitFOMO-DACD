@@ -16,7 +16,7 @@ public class Candlestick {
     private int NumberOfTrades;
 
     public Candlestick(long klineOpenTime, String openPrice, String highPrice, String lowPrice, String closePrice, String volume, long klineCloseTime, String quoteAssetVolume, int numberOfTrades) {
-        ts = Instant.ofEpochMilli(klineCloseTime); // Usa KlineCloseTime para ts
+        ts = Instant.ofEpochMilli(klineOpenTime);
         ss = "binance-feeder";
         KlineOpenTime = klineOpenTime;
         OpenPrice = openPrice;
