@@ -27,7 +27,7 @@ public class RecommendationCalculator {
     private List<Entry> readEntries(String csvPath, long timeThreshold) {
         List<Entry> entries = new ArrayList<>();
         try (var reader = new java.io.BufferedReader(new java.io.FileReader(csvPath))) {
-            reader.readLine(); // Saltar el encabezado
+            reader.readLine();
             addEntries(reader, timeThreshold, entries);
         } catch (Exception e) {
             System.err.println("Error leyendo CSV: " + e.getMessage());
