@@ -1,4 +1,7 @@
 package es.ulpgc.dacd.bitfomo.businessunit.domain;
 
-public record RedditEvent(String id, long ts, String text) {}
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.time.Instant;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record RedditEvent(String id, Instant ts, String title, String selftext, double sentiment) {}
