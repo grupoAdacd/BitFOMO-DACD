@@ -18,13 +18,10 @@ public class MessageReceiver {
         Connection connection = new ActiveMQConnectionFactory(url).createConnection();
         connection.setClientID("EventStoreBuilder");
         connection.start();
-
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
         for (String topicName : topics) {
             Topic topic = session.createTopic(topicName);
             TopicSubscriber consumer = session.createDurableSubscriber(topic, topicName + "Subscription");
-
             consumer.setMessageListener(message -> {
                 try {
                     if (message instanceof TextMessage textMessage) {
