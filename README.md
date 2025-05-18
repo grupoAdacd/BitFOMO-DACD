@@ -371,15 +371,7 @@ graph TD
         A3
     end
     
-    subgraph "Event Storage"
-        A5
-        A7
-    end
     
-    subgraph "Analysis"
-        A6
-        A8
-    end
 ```
 
 ### Component Interactions
