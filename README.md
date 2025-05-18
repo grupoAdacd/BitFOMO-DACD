@@ -1,241 +1,223 @@
-# BitFOMO - Data Analysis and Cryptocurrency Decision Support System
+# BitFOMO - Sistema de Análisis de Datos y Soporte a Decisiones en Criptomonedas
 
-## Project Description
+## Descripción del Proyecto
 
-BitFOMO is a data analysis system for supporting cryptocurrency investment decisions, specifically for Bitcoin. The project collects and analyzes Bitcoin price data from Binance and community sentiment from Reddit to generate automated investment recommendations.
+BitFOMO es un sistema de análisis de datos para apoyar decisiones de inversión en criptomonedas, específicamente para Bitcoin. El proyecto recopila y analiza datos de precios de Bitcoin desde Binance y el sentimiento de la comunidad en Reddit para generar recomendaciones de inversión automatizadas.
 
-### Value Proposition
+### Propuesta de Valor
 
-- **Comprehensive Analysis**: Combines objective financial data with community sentiment analysis to provide a more holistic view than traditional price-only analysis
-- **Informed Decisions**: Provides recommendations based on historical data and trends with a clear explanation of rationale behind each suggestion
-- **Real-time Processing**: Continuous data collection and analysis enables timely decision-making (currently using 6-hour windows, but configurable)
-- **Proactive Alerts**: Notifies users of significant sentiment shifts that might precede price movements
-- **Scalable Architecture**: Modular event-driven system allowing easy maintenance and expansion to additional cryptocurrencies or data sources
-- **Decision Support**: Reduces decision fatigue and emotional trading through data-backed recommendations
+- **Análisis Integral**: Combina datos financieros objetivos con análisis de sentimiento de la comunidad para ofrecer una visión más completa que el análisis basado solo en precios.
+- **Decisiones Informadas**: Proporciona recomendaciones basadas en datos históricos y tendencias, con una explicación clara de la lógica detrás de cada sugerencia.
+- **Procesamiento en Tiempo Real**: La recolección y análisis continuo de datos permite tomar decisiones oportunas (actualmente usando ventanas de 6 horas, pero configurable).
+- **Alertas Proactivas**: Notifica a los usuarios sobre cambios significativos en el sentimiento que podrían preceder movimientos de precios.
+- **Arquitectura Escalable**: Sistema modular basado en eventos que facilita el mantenimiento y la expansión a otras criptomonedas o fuentes de datos.
+- **Soporte a Decisiones**: Reduce la fatiga en la toma de decisiones y el trading emocional mediante recomendaciones respaldadas por datos.
 
-## Justification of API Selection and Datamart Structure
+## Justificación de la Selección de APIs y Estructura del Datamart
 
-### APIs Selected
+### APIs Seleccionadas
 
 **Binance API**
-- **Justification**: Binance is one of the world's largest and most reliable cryptocurrency exchanges
-- **Advantages**:
-    - High-quality data with millisecond precision
-    - Low latency access (essential for near real-time applications)
-    - Comprehensive documentation and stable endpoints
-    - High rate limits suitable for our 5-minute polling interval
-- **Endpoint used**: `/api/v3/uiKlines` for historical candlestick data of BTC/USDT
+- **Justificación**: Binance es uno de los intercambios de criptomonedas más grandes y confiables del mundo.
+- **Ventajas**:
+  - Datos de alta calidad con precisión de milisegundos.
+  - Acceso de baja latencia (esencial para aplicaciones casi en tiempo real).
+  - Documentación completa y endpoints estables.
+  - Límites de tasa altos adecuados para nuestro intervalo de consulta de 5 minutos.
+- **Endpoint usado**: `/api/v3/uiKlines` para datos históricos de velas de BTC/USDT.
 
 **Reddit API**
-- **Justification**: Reddit hosts major cryptocurrency communities with diverse perspectives
-- **Advantages**:
-    - Access to real-time community sentiment from knowledgeable users
-    - Multiple subreddits provide broader sentiment sampling
-    - Content is public and properly structured for analysis
-- **Subreddits monitored**: Bitcoin, CryptoCurrency, CryptoMarkets (Future enhancement: weighted importance by subreddit)
+- **Justificación**: Reddit alberga comunidades importantes de criptomonedas con perspectivas diversas.
+- **Ventajas**:
+  - Acceso a sentimientos de la comunidad en tiempo real de usuarios conocedores.
+  - Múltiples subreddits permiten un muestreo más amplio del sentimiento.
+  - El contenido es público y está estructurado adecuadamente para análisis.
+- **Subreddits monitoreados**: Bitcoin, CryptoCurrency, CryptoMarkets (Mejora futura: ponderación por importancia de subreddit).
 
-### Datamart Structure
+### Estructura del Datamart
 
-The datamart is structured as a CSV file with the following columns:
+El datamart está estructurado como un archivo CSV con las siguientes columnas:
 
 ```csv
 ts,openPrice,closePrice,sentiment
 ```
 
-- `ts`: Timestamp of the event (millisecond precision)
-- `openPrice`: Opening price of Bitcoin in USDT
-- `closePrice`: Closing price of Bitcoin in USDT
-- `sentiment`: Sentiment score (-1 to 1, where -1 is negative and 1 is positive)
+- `ts`: Marca de tiempo del evento (precisión de milisegundos).
+- `openPrice`: Precio de apertura de Bitcoin en USDT.
+- `closePrice`: Precio de cierre de Bitcoin en USDT.
+- `sentiment`: Puntuación de sentimiento (-1 a 1, donde -1 es negativo y 1 es positivo).
 
-This structure enables:
-1. **Correlation Analysis**: Direct comparison between price movements and sentiment shifts
-2. **Temporal Analysis**: Time-series evaluation of sentiment preceding price changes
-3. **Signal Detection**: Identification of sentiment thresholds that precede significant price movements
-4. **Simplified Queries**: Straightforward filtering and aggregation for recommendation algorithms
+Esta estructura permite:
+1. **Análisis de Correlación**: Comparación directa entre movimientos de precios y cambios en el sentimiento.
+2. **Análisis Temporal**: Evaluación de series temporales del sentimiento antes de cambios de precios.
+3. **Detección de Señales**: Identificación de umbrales de sentimiento que preceden movimientos significativos de precios.
+4. **Consultas Simplificadas**: Filtrado y agregación sencillos para algoritmos de recomendación.
 
-## Module Details
+## Detalles de los Módulos
 
-Each module follows the Hexagonal Architecture (Clean Architecture) pattern which separates the application into layers with clear boundaries and dependencies pointing inward:
+Cada módulo sigue el patrón de **Hexagonal Architecture** (Clean Architecture), que separa la aplicación en capas con límites claros y dependencias dirigidas hacia el interior.
 
 ### Reddit Feeder
 
-The Reddit Feeder module collects posts from cryptocurrency-related subreddits for sentiment analysis.
+El módulo *Reddit Feeder* recopila publicaciones de subreddits relacionados con criptomonedas para análisis de sentimiento.
 
-#### Architecture Diagram
+#### Diagrama de Arquitectura
 
-![reddit-feeder](./reddit-feeder-diagram.png)
+![reddit-feeder](diagrams/reddit-feeder-diagram.png)
 
-#### Key Components
+#### Componentes Clave
 
-- **Controller**: Orchestrates the data flow and schedules periodic Reddit post fetching
-- **RedditApi**: Implements the `ExternalRedditApiPort` to fetch data from Reddit
-- **RedditConnection**: Handles HTTP communication with Reddit's API
-- **RedditDeserializer**: Converts JSON responses to domain objects
-- **MessagePublisher**: Publishes events to ActiveMQ
+- **Controller**: Orquesta el flujo de datos y programa la obtención periódica de publicaciones de Reddit.
+- **RedditApi**: Implementa el `ExternalRedditApiPort` para obtener datos de Reddit.
+- **RedditConnection**: Maneja la comunicación HTTP con la API de Reddit.
+- **RedditDeserializer**: Convierte respuestas JSON en objetos del dominio.
+- **MessagePublisher**: Publica eventos en ActiveMQ.
 
-#### Design Principles
+#### Principios de Diseño
 
-- **Open/Closed Principle**:
-    - The module is open for extension (new data sources) but closed for modification
-    - Adding new social media platforms requires only implementing the appropriate interfaces
+- **Principio Abierto/Cerrado**:
+  - El módulo está abierto a extensiones (nuevas fuentes de datos) pero cerrado a modificaciones.
+  - Agregar nuevas plataformas de redes sociales solo requiere implementar las interfaces adecuadas.
+- **Segregación de Interfaz**:
+  - Interfaces distintas (`ExternalRedditApiPort`, `EventPublisherPort`) con responsabilidades específicas.
+  - Ningún cliente depende de métodos que no usa.
+- **Inversión de Dependencias**:
+  - Los módulos de alto nivel (Controller) dependen de abstracciones, no de implementaciones concretas.
+  - Permite cambiar implementaciones fácilmente (e.g., diferentes message brokers).
+- **Responsabilidad Única**:
+  - Cada clase tiene una responsabilidad bien definida (obtención, análisis, publicación).
+  - Los cambios en un aspecto no afectan a otros (e.g., cambiar el análisis JSON no impacta la lógica HTTP).
 
-- **Interface Segregation**:
-    - Distinct interfaces (`ExternalRedditApiPort`, `EventPublisherPort`) with focused responsibilities
-    - No client is forced to depend on methods it doesn't use
-
-- **Dependency Inversion**:
-    - High-level modules (Controller) depend on abstractions, not concrete implementations
-    - This enables easy swapping of implementations (e.g., different message brokers)
-
-- **Single Responsibility Principle**:
-    - Each class has a well-defined responsibility (fetching, parsing, publishing)
-    - Changes to one aspect don't affect others (e.g., changing JSON parsing won't impact HTTP logic)
-
-#### Design Patterns
+#### Patrones de Diseño
 
 - **Strategy Pattern**:
-    - `SentimentAnalyzer` allows interchangeable analysis algorithms
-    - Different sentiment analysis approaches can be plugged in without changing client code
-
+  - `SentimentAnalyzer` permite algoritmos de análisis intercambiables.
+  - Diferentes enfoques de análisis de sentimiento pueden integrarse sin cambiar el código cliente.
 - **Builder Pattern**:
-    - `RedditPost` creation with optional parameters
-    - Two constructors provide flexibility in object creation
-
+  - Creación de `RedditPost` con parámetros opcionales.
+  - Dos constructores ofrecen flexibilidad en la creación de objetos.
 - **Observer Pattern**:
-    - Event publication via ActiveMQ implements async notification
-    - Publishers and subscribers are decoupled through the message broker
-
+  - Publicación de eventos vía ActiveMQ implementa notificaciones asíncronas.
+  - Publicadores y suscriptores están desacoplados mediante el message broker.
 - **Adapter Pattern**:
-    - `RedditApi` adapts external Reddit API to the internal domain model
-    - Shields the domain model from external API changes
-
+  - `RedditApi` adapta la API externa de Reddit al modelo de dominio interno.
+  - Protege el modelo de dominio de cambios en la API externa.
 - **Factory Method**:
-    - Creation of connections and sessions through factory methods in `MessageBrokerConnection`
-    - Encapsulates creation logic and simplifies client code
+  - Creación de conexiones y sesiones mediante métodos fábrica en `MessageBrokerConnection`.
+  - Encapsula la lógica de creación y simplifica el código cliente.
 
 ### Binance Feeder
 
-The Binance Feeder module is responsible for collecting cryptocurrency price data from the Binance exchange API.
+El módulo *Binance Feeder* es responsable de recopilar datos de precios de criptomonedas desde la API de Binance.
 
-#### Architecture Diagram
+#### Diagrama de Arquitectura
 
-The module implements Hexagonal Architecture with distinct layers:
+El módulo implementa **Hexagonal Architecture** con capas distintas:
 
-# FOTO DEL DIAGRAMA/ BINANCE-FEEDER
+![event-store-builder](diagrams/binance-feeder-diagram.png)
 
-#### Key Components
 
-- **Application**: Entry point that initializes and schedules the data fetching process
-- **ExchangeApiClient**: Extends ExchangeDataFetcher to implement Binance-specific logic
-- **HttpClient**: Handles HTTP communication with the Binance API
-- **ActiveMQEventPublisher**: Publishes candlestick data to the message broker
-- **CandlestickSerializer/Deserializer**: Convert between JSON and domain objects
+#### Componentes Clave
 
-#### Design Principles
+- **Application**: Punto de entrada que inicializa y programa el proceso de obtención de datos.
+- **ExchangeApiClient**: Extiende `ExchangeDataFetcher` para implementar lógica específica de Binance.
+- **HttpClient**: Maneja la comunicación HTTP con la API de Binance.
+- **ActiveMQEventPublisher**: Publica datos de velas en el message broker.
+- **CandlestickSerializer/Deserializer**: Convierte entre JSON y objetos del dominio.
 
-- **Single Responsibility Principle**:
-    - Each class has a specific focus (API access, HTTP communication, serialization)
-    - Changes to one aspect don't affect others
+#### Principios de Diseño
 
-- **Dependency Inversion Principle**:
-    - High-level modules depend on abstractions via interfaces
-    - Implementation details are isolated behind interfaces
+- **Responsabilidad Única**:
+  - Cada clase tiene un enfoque específico (acceso a API, comunicación HTTP, serialización).
+  - Los cambios en un aspecto no afectan a otros.
+- **Inversión de Dependencias**:
+  - Los módulos de alto nivel dependen de abstracciones mediante interfaces.
+  - Los detalles de implementación están aislados detrás de interfaces.
+- **Segregación de Interfaz**:
+  - Interfaces específicas (`HttpClientProvider`, `EventPublisherPort`) con responsabilidades enfocadas.
+  - Los clientes solo dependen de los métodos que usan.
+- **Sustitución de Liskov**:
+  - `ExchangeApiClient` extiende `ExchangeDataFetcher` y puede usarse en su lugar.
+  - Comportamiento polimórfico mediante implementaciones de interfaces.
 
-- **Interface Segregation Principle**:
-    - Specific interfaces (HttpClientProvider, EventPublisherPort) with focused responsibilities
-    - Clients only depend on the methods they use
-
-- **Liskov Substitution Principle**:
-    - ExchangeApiClient extends ExchangeDataFetcher and can be used in its place
-    - Polymorphic behavior through interface implementations
-
-#### Design Patterns
+#### Patrones de Diseño
 
 - **Repository Pattern**:
-    - Data access logic is encapsulated in the ExchangeApiClient
-    - Provides clean separation between domain and data access
-
+  - La lógica de acceso a datos está encapsulada en `ExchangeApiClient`.
+  - Proporciona una separación clara entre dominio y acceso a datos.
 - **Adapter Pattern**:
-    - ExchangeApiClient adapts the Binance API to the application's domain model
-    - HttpClient adapts Java's HTTP client to the application's needs
-
+  - `ExchangeApiClient` adapta la API de Binance al modelo de dominio de la aplicación.
+  - `HttpClient` adapta el cliente HTTP de Java a las necesidades de la aplicación.
 - **Factory Pattern**:
-    - HttpClient creates HTTP resources through factory methods
-    - Encapsulates creation logic for HTTP clients and requests
-
+  - `HttpClient` crea recursos HTTP mediante métodos fábrica.
+  - Encapsula la lógica de creación para clientes y solicitudes HTTP.
 - **Template Method**:
-    - ExchangeDataFetcher defines the algorithm structure
-    - ExchangeApiClient provides specific implementations
+  - `ExchangeDataFetcher` define la estructura del algoritmo.
+  - `ExchangeApiClient` proporciona implementaciones específicas.
 
-#### Key Features
+#### Características Clave
 
-- Retrieves candlestick data (OHLCV) for Bitcoin trading pairs
-- Tracks last fetch time to avoid duplicate data
-- Converts external API data to domain objects
-- Robust error handling with retries
-- Configurable fetch intervals
+- Obtiene datos de velas (OHLCV) para pares de trading de Bitcoin.
+- Rastrea la última hora de obtención para evitar datos duplicados.
+- Convierte datos de la API externa a objetos del dominio.
+- Manejo robusto de errores con reintentos.
+- Intervalos de obtención configurables.
 
 ### Event Store Builder
 
-The Event Store Builder module persists all events from the system for historical analysis and system recovery.
+El módulo *Event Store Builder* persiste todos los eventos del sistema para análisis histórico y recuperación del sistema.
 
-#### Architecture Diagram
+#### Diagrama de Arquitectura
 
-![event-store-builder](./event-store-builder-diagram.png)
+![event-store-builder](diagrams/event-store-builder-diagram.png)
 
-#### Key Components
+#### Componentes Clave
 
-- **MessageReceiver**: Subscribes to ActiveMQ topics to receive events
-- **EventStore**: Persists events to filesystem in an organized directory structure
-- **Deduplicator**: Prevents duplicate events from being stored
+- **MessageReceiver**: Se suscribe a tópicos de ActiveMQ para recibir eventos.
+- **EventStore**: Persiste eventos en el sistema de archivos en una estructura de directorios organizada.
+- **Deduplicator**: Evita el almacenamiento de eventos duplicados.
 
-#### Design Principles
+#### Principios de Diseño
 
-- **Single Responsibility Principle**:
-    - MessageReceiver focuses solely on receiving messages
-    - EventStore handles only persistence logic
-    - Deduplicator is responsible only for duplicate detection
+- **Responsabilidad Única**:
+  - `MessageReceiver` se enfoca solo en recibir mensajes.
+  - `EventStore` maneja únicamente la lógica de persistencia.
+  - `Deduplicator` se encarga solo de detectar duplicados.
+- **Acoplamiento Bajo**:
+  - Los componentes se comunican mediante interfaces bien definidas.
+  - Los cambios en un componente no se propagan a otros.
+  - Comunicación asíncrona basada en mensajes con otros módulos.
+- **Alta Cohesión**:
+  - La funcionalidad relacionada está agrupada.
+  - Cada clase tiene un propósito claro y enfocado.
+  - Los métodos dentro de las clases persiguen un objetivo común.
+- **DRY (No te Repitas)**:
+  - La funcionalidad común se extrae a métodos compartidos.
+  - Evita la duplicación de lógica entre componentes.
+  - Manejo centralizado de errores y logging.
 
-- **Loose Coupling**:
-    - Components communicate through well-defined interfaces
-    - Changes to one component don't propagate to others
-    - Asynchronous message-based communication with other modules
-
-- **High Cohesion**:
-    - Related functionality is grouped together
-    - Each class has a clear, focused purpose
-    - Methods within classes serve a common goal
-
-- **DRY (Don't Repeat Yourself)**:
-    - Common functionality extracted to shared methods
-    - Avoids duplication of logic across components
-    - Centralized error handling and logging
-
-#### Design Patterns
+#### Patrones de Diseño
 
 - **Event Sourcing**:
-    - All changes are stored as a sequence of events
-    - System state can be reconstructed by replaying events
-    - Provides complete audit trail and temporal queries
-
+  - Todos los cambios se almacenan como una secuencia de eventos.
+  - El estado del sistema puede reconstruirse al reproducir eventos.
+  - Proporciona un registro completo y consultas temporales.
 - **Publisher-Subscriber**:
-    - Decoupled communication via message broker
-    - Topics provide selective message delivery
-    - Durable subscriptions ensure message delivery
-
+  - Comunicación desacoplada mediante el message broker.
+  - Los tópicos permiten entrega selectiva de mensajes.
+  - Suscripciones duraderas aseguran la entrega de mensajes.
 - **Repository Pattern**:
-    - EventStore provides a centralized data access layer
-    - Organized storage and retrieval of events
-    - Abstracts the underlying file system details
-
+  - `EventStore` proporciona una capa centralizada de acceso a datos.
+  - Almacenamiento y recuperación organizados de eventos.
+  - Abstrae los detalles del sistema de archivos subyacente.
 - **Singleton Pattern**:
-    - Single EventStore instance manages all persistence
-    - Ensures consistent, coordinated access to the file system
-    - Prevents concurrent write conflicts
+  - Una sola instancia de `EventStore` gestiona toda la persistencia.
+  - Asegura acceso consistente y coordinado al sistema de archivos.
+  - Evita conflictos de escritura concurrentes.
 
-#### Implementation Details
+#### Detalles de Implementación
 
-- **Directory Structure**:
+- **Estructura de Directorios**:
   ```
   src/main/eventstore/
   ├── RedditPost/
@@ -246,96 +228,89 @@ The Event Store Builder module persists all events from the system for historica
           └── YYYYMMDD.events
   ```
 
-- **Event File Format**:
-  Each event is stored as a JSON object on a single line, containing:
-    - Timestamp (ts)
-    - Source system (ss)
-    - Event-specific data
+- **Formato de Archivo de Eventos**:
+  Cada evento se almacena como un objeto JSON en una sola línea, conteniendo:
+  - Marca de tiempo (`ts`).
+  - Sistema fuente (`ss`).
+  - Datos específicos del evento.
 
-- **Deduplication Strategy**:
-    - In-memory cache of processed event IDs
-    - Persistence of IDs to prevent duplicates across restarts
-    - Efficient lookups using hash-based data structures
+- **Estrategia de Deduplicación**:
+  - Caché en memoria de IDs de eventos procesados.
+  - Persistencia de IDs para evitar duplicados tras reinicios.
+  - Búsquedas eficientes usando estructuras de datos basadas en hash.
 
 ### Business Unit
 
-The Business Unit module processes data from multiple sources to generate investment recommendations.
+El módulo *Business Unit* procesa datos de múltiples fuentes para generar recomendaciones de inversión.
 
-#### Architecture Diagram
+#### Diagrama de Arquitectura
 
 # FOTO DIAGRAMA BUSINESS-UNIT
 
+#### Componentes Clave
 
-#### Key Components
+- **DatamartEnsembler**: Correlaciona y procesa datos de múltiples fuentes.
+- **ActiveMQListener**: Se suscribe a tópicos del message broker.
+- **CLIUserInterface**: Proporciona interacción con el usuario y muestra recomendaciones.
+- **RecommendationService**: Implementa algoritmos de recomendación de inversión.
+- **SentimentAnalyzer**: Analiza el sentimiento de textos usando la librería VADER de Python.
 
-- **DatamartEnsembler**: Correlates and processes data from multiple sources
-- **ActiveMQListener**: Subscribes to message broker topics
-- **CLIUserInterface**: Provides user interaction and displays recommendations
-- **RecommendationService**: Implements investment recommendation algorithms
-- **SentimentAnalyzer**: Analyzes text sentiment using Python's VADER library
+#### Principios de Diseño
 
-#### Design Principles
+- **Separación de Responsabilidades**:
+  - La capa de interfaz (`CLIUserInterface`) está separada de la lógica de negocio.
+  - El procesamiento de datos (`DatamartEnsembler`) es distinto del análisis (`RecommendationService`).
+  - Las preocupaciones de integración (`ActiveMQListener`) están aisladas de la lógica del dominio.
+- **Principios SOLID**:
+  - Responsabilidad Única: Cada clase tiene un propósito bien definido.
+  - Abierto/Cerrado: Nuevos algoritmos de recomendación pueden añadirse sin modificaciones.
+  - Sustitución de Liskov: Las implementaciones son sustituibles por sus interfaces.
+  - Segregación de Interfaz: Interfaces específicas y enfocadas.
+  - Inversión de Dependencias: Los módulos de alto nivel dependen de abstracciones.
+- **Separación de Comandos y Consultas**:
+  - Los comandos (`processMessage`) cambian el estado pero no devuelven valores.
+  - Las consultas (`getRecommendation`) devuelven valores pero no cambian el estado.
+  - Distinción clara entre operaciones que modifican y leen datos.
 
-- **Separation of Concerns**:
-    - UI layer (CLIUserInterface) is separate from business logic
-    - Data processing (DatamartEnsembler) is distinct from analysis (RecommendationService)
-    - Integration concerns (ActiveMQListener) are isolated from domain logic
-
-- **SOLID Principles**:
-    - Single Responsibility: Each class has a well-defined purpose
-    - Open/Closed: New recommendation algorithms can be added without modification
-    - Liskov Substitution: Implementations are substitutable for their interfaces
-    - Interface Segregation: Focused, specific interfaces
-    - Dependency Inversion: High-level modules depend on abstractions
-
-- **Command-Query Separation**:
-    - Commands (processMessage) change state but don't return values
-    - Queries (getRecommendation) return values but don't change state
-    - Clear distinction between operations that modify and read data
-
-#### Design Patterns
+#### Patrones de Diseño
 
 - **Command Pattern**:
-    - CLI commands are treated as objects
-    - Each command encapsulates all information needed for execution
-    - Commands can be extended easily without modifying client code
-
+  - Los comandos CLI se tratan como objetos.
+  - Cada comando encapsula toda la información necesaria para su ejecución.
+  - Los comandos pueden extenderse fácilmente sin modificar el código cliente.
 - **Template Method**:
-    - Common structure for recommendation processing
-    - Specific steps can be overridden by subclasses
-    - Ensures consistent algorithm structure with customizable parts
-
+  - Estructura común para el procesamiento de recomendaciones.
+  - Pasos específicos pueden ser sobrescritos por subclases.
+  - Asegura una estructura de algoritmo consistente con partes personalizables.
 - **Cache Pattern**:
-    - In-memory caching of Reddit and Binance data
-    - Improves performance for time-correlated data lookups
-    - Reduces repeated processing of the same data
-
+  - Caché en memoria de datos de Reddit y Binance.
+  - Mejora el rendimiento para búsquedas de datos correlacionados en el tiempo.
+  - Reduce el procesamiento repetido de los mismos datos.
 - **Observer Pattern**:
-    - Business Unit observes changes via message broker
-    - Reacts to new data events without polling
-    - Loose coupling between data producers and consumers
-
+  - *Business Unit* observa cambios vía el message broker.
+  - Reacciona a nuevos eventos de datos sin polling.
+  - Acoplamiento bajo entre productores y consumidores de datos.
 - **Strategy Pattern**:
-    - Different recommendation strategies can be plugged in
-    - Algorithms can be selected at runtime
-    - New strategies can be added without changing existing code
+  - Diferentes estrategias de recomendación pueden integrarse.
+  - Los algoritmos pueden seleccionarse en tiempo de ejecución.
+  - Nuevas estrategias pueden añadirse sin cambiar el código existente.
 
-#### Recommendation Algorithm
+#### Algoritmo de Recomendación
 
-The recommendation algorithm considers two primary factors:
-1. **Community Sentiment**: Analyzed from Reddit posts (-1 to 1 scale)
-2. **Price Trend**: Calculated from open/close price differences
+El algoritmo de recomendación considera dos factores principales:
+1. **Sentimiento de la Comunidad**: Analizado desde publicaciones de Reddit (escala de -1 a 1).
+2. **Tendencia de Precios**: Calculada desde diferencias entre precios de apertura y cierre.
 
-Decision logic:
-- **Buy** when sentiment is positive (≥ 0.1)
-- **Sell** when sentiment is negative (≤ -0.1) and price is declining
-- **Hold** when sentiment is neutral or contradicting price movement
+Lógica de decisión:
+- **Comprar** cuando el sentimiento es positivo (≥ 0.1).
+- **Vender** cuando el sentimiento es negativo (≤ -0.1) y el precio está en declive.
+- **Mantener** cuando el sentimiento es neutral o contradice el movimiento de precios.
 
-This approach combines fundamental principles from behavioral finance and technical analysis.
+Este enfoque combina principios fundamentales de finanzas conductuales y análisis técnico.
 
-## System Architecture
+## Arquitectura del Sistema
 
-The system follows an Event-Driven Architecture (EDA) with clear separation of concerns:
+El sistema sigue una **Event-Driven Architecture (EDA)** con una clara separación de responsabilidades:
 
 ```mermaid
 graph TD
@@ -371,48 +346,44 @@ graph TD
         A3
     end
     
-    
 ```
 
-### Component Interactions
+### Interacciones de Componentes
 
-1. **Feeders Layer**: Autonomously collect data from external sources
-    - Binance Feeder retrieves cryptocurrency price data at 5-minute intervals
-    - Reddit Feeder harvests posts from cryptocurrency subreddits at 5-minute intervals
+1. **Capa de Feeders**: Recopila datos de fuentes externas de forma autónoma.
+   - *Binance Feeder* obtiene datos de precios de criptomonedas cada 5 minutos.
+   - *Reddit Feeder* recolecta publicaciones de subreddits de criptomonedas cada 5 minutos.
+2. **Capa de Message Broker**: Proporciona acoplamiento bajo mediante comunicación asíncrona.
+   - ActiveMQ gestiona la distribución de mensajes a múltiples suscriptores.
+   - La mensajería basada en tópicos permite consumo selectivo.
+3. **Capa de Almacenamiento de Eventos**: Implementa *event sourcing* para la persistencia de datos.
+   - *Event Store Builder* persiste todos los eventos con marcas de tiempo.
+   - Estructura de archivos organizada permite recuperación eficiente.
+   - Habilita recuperación del sistema y capacidades de reproducción.
+4. **Capa de Análisis**: Procesa datos combinados para obtener insights de negocio.
+   - *Business Unit* correlaciona datos de precios y sentimiento.
+   - El datamart proporciona una estructura optimizada para algoritmos de análisis.
+   - El motor de recomendaciones genera consejos de inversión accionables.
 
-2. **Message Broker Layer**: Provides loose coupling through asynchronous communication
-    - ActiveMQ handles message distribution to multiple subscribers
-    - Topic-based messaging allows selective consumption
+### Flujo de Datos
 
-3. **Event Store Layer**: Implements event sourcing for data persistence
-    - Event Store Builder persists all events with timestamps
-    - Organized file structure allows efficient retrieval
-    - Enables system recovery and replay capabilities
+1. Los *Feeders* recopilan datos de APIs externas y los convierten en eventos del dominio.
+2. Los eventos se publican en tópicos respectivos en el message broker.
+3. *Event Store Builder* se suscribe a todos los tópicos y persiste eventos por tipo y fecha.
+4. *Business Unit* también se suscribe a tópicos, procesa eventos y actualiza el datamart.
+5. La interfaz CLI consulta el datamart para generar recomendaciones de inversión.
 
-4. **Analysis Layer**: Processes combined data for business insights
-    - Business Unit correlates price and sentiment data
-    - Datamart provides optimized structure for analysis algorithms
-    - Recommendation engine generates actionable investment advice
+## Instrucciones para Compilar y Ejecutar
 
-### Data Flow
+### Prerrequisitos
 
-1. Feeders collect data from external APIs and convert to domain events
-2. Events are published to respective topics in the message broker
-3. Event Store Builder subscribes to all topics and persists events by type and date
-4. Business Unit also subscribes to topics, processes events, and updates the datamart
-5. CLI interface queries the datamart to generate investment recommendations
+- Java 21 o superior.
+- Maven 3.6+.
+- Apache ActiveMQ v6.1.6.
+- Python 3.8+ con librerías:
+  - `vaderSentiment`.
 
-## Build and Run Instructions
-
-### Prerequisites
-
-- Java 21 or higher
-- Maven 3.6+
-- Apache ActiveMQ v6.1.6
-- Python 3.8+ with libraries:
-    - `vaderSentiment`
-
-### Compilation
+### Compilación
 
 ```bash
 mvn clean compile
@@ -420,7 +391,8 @@ mvn clean compile
 mvn clean package
 ```
 
-### Execution of broker
+### Ejecución del Broker
+
 **Ubuntu v24.04.2**
 ```bash
 ./activemq start
@@ -431,26 +403,26 @@ mvn clean package
 .\activemq.bat start
 ```
 
-## Usage Examples
+## Ejemplos de Uso
 
-### CLI Commands
+### Comandos CLI
 
-- `recommend`: Generates investment recommendation based on the last 48 hours
-- `help`: Shows help for available commands
-- `exit`: Exits the application
+- `recommend`: Genera una recomendación de inversión basada en las últimas 48 horas.
+- `help`: Muestra ayuda para los comandos disponibles.
+- `exit`: Sale de la aplicación.
 
-## Technologies Used
+## Tecnologías Usadas
 
-- **Java 21**: Primary language
-- **Maven**: Dependency management
-- **ActiveMQ**: Message broker for asynchronous communication
-- **SQLite**: Lightweight database for persistence
-- **Jackson**: JSON serialization/deserialization
-- **OkHttp**: HTTP client for API calls
-- **JUnit 5**: Testing framework
-- **VaderSentiment**: Python-based sentiment analysis
+- **Java 21**: Lenguaje principal.
+- **Maven**: Gestión de dependencias.
+- **ActiveMQ**: Message broker para comunicación asíncrona.
+- **SQLite**: Base de datos ligera para persistencia.
+- **Jackson**: Serialización/deserialización JSON.
+- **OkHttp**: Cliente HTTP para llamadas a APIs.
+- **JUnit 5**: Framework de pruebas.
+- **VaderSentiment**: Análisis de sentimiento basado en Python.
 
-## Project Structure
+## Estructura del Proyecto
 
 ```
 BitFOMO/
@@ -463,18 +435,18 @@ BitFOMO/
 └── README.md                
 ```
 
-## Development Considerations
+## Consideraciones de Desarrollo
 
-- **Error Handling**: Robust implementation of try-catch and logging
-- **Concurrency**: Use of `ScheduledExecutorService` for periodic tasks
-- **Configurability**: Externalized parameters via command-line arguments
-- **Testability**: Interfaces and dependency injection for unit testing
-- **Extensibility**: Modular design allows adding new data sources
+- **Manejo de Errores**: Implementación robusta de try-catch y logging.
+- **Concurrencia**: Uso de `ScheduledExecutorService` para tareas periódicas.
+- **Configurabilidad**: Parámetros externalizados mediante argumentos de línea de comandos.
+- **Testeabilidad**: Interfaces e inyección de dependencias para pruebas unitarias.
+- **Extensibilidad**: Diseño modular permite añadir nuevas fuentes de datos.
 
-## Future Enhancements
+## Mejoras Futuras
 
-- Support for additional cryptocurrencies
-- Advanced sentiment analysis with machine learning
-- Web interface for visualization
-- Backtesting capabilities for strategy validation
-- Integration with trading platforms for automated trading
+- Soporte para más criptomonedas.
+- Análisis de sentimiento avanzado con machine learning.
+- Interfaz web para visualización.
+- Capacidades de backtesting para validar estrategias.
+- Integración con plataformas de trading para trading automatizado.
