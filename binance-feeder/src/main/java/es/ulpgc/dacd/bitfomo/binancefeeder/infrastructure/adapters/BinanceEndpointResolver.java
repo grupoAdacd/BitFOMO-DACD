@@ -27,7 +27,6 @@ public class BinanceEndpointResolver implements EndpointProvider {
     public String createApiUrl() {
         String url = BASE_URL + symbol + "&interval=" + interval + "&limit=" + limit +
                 "&startTime=" + startTime + "&endTime=" + endTime;
-        System.out.println("URL generada: " + url);
         return url;
     }
 }

@@ -105,7 +105,6 @@ public class BinanceCandlestickFetcher implements CandlestickFetcher {
         }
         String json = fetchJsonData();
         if (json == null || json.isEmpty()) return new ArrayList<>();
-        System.out.println("JSON recibido: " + json);
         List<Candlestick> candlesticks = parser.parseCandlesticks(json);
         return candlesticks.isEmpty() ? new ArrayList<>() : candlesticks;
     }
@@ -114,7 +113,6 @@ public class BinanceCandlestickFetcher implements CandlestickFetcher {
         try {
             return httpClient.sendRequest().body();
         } catch (Exception e) {
-            System.err.println("Error fetching data: " + e.getMessage());
             return null;
         }
     }
