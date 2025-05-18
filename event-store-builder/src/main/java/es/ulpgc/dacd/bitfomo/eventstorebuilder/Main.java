@@ -11,13 +11,9 @@ public class Main {
             System.err.println("Usage: java -jar event-store-builder.jar <brokerUrl>");
             System.exit(1);
         }
-
         String brokerUrl = args[0];
-
         List<String> topics = List.of("RedditPost", "CryptoPrice");
-
         MessageReceiver receiver = new MessageReceiver(topics, brokerUrl);
-
         receiver.start();
     }
 }

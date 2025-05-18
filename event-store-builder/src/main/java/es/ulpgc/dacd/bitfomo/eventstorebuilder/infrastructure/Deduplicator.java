@@ -26,13 +26,11 @@ public class Deduplicator {
     private void loadRedditPostIds() {
         String date = DATE_FORMATTER.format(LocalDate.now());
         String filePath = String.format("%s/%s/%s/%s.events", EVENT_STORE_BASE_DIR, "RedditPost", "reddit-feeder", date);
-
         File file = new File(filePath);
         if (!file.exists()) {
             System.out.println("No historical events found at: " + filePath);
             return;
         }
-
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -48,11 +46,9 @@ public class Deduplicator {
             System.err.println("Error reading historical events from " + filePath + ": " + e.getMessage());
         }
     }
-
     public boolean isDuplicateRedditPost(String postId) {
         return redditPostIds.contains(postId);
     }
-
     public void addRedditPostId(String postId) {
         redditPostIds.add(postId);
     }

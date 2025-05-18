@@ -31,22 +31,17 @@ public class EventStore {
                 }
                 deduplicator.addRedditPostId(postId);
             }
-
             String ss = obj.get("ss").asText();
             String ts = obj.get("ts").asText();
             System.out.println("Saving event with ts: " + ts);
             LocalDate date = LocalDate.parse(ts.substring(0, 10), DateTimeFormatter.ISO_DATE);
-
             String dirPath = String.format("%s/%s/%s", BASE_DIR, topic, ss);
             String fileName = String.format("%s.events", date.format(DATE_FORMATTER));
-
             File directory = new File(dirPath);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
-
             File file = new File(directory, fileName);
-
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
                 System.out.println("Saving into: " + fileName);
                 writer.write(json);
@@ -55,5 +50,8 @@ public class EventStore {
         } catch (Exception e) {
             System.err.println("Error saving event: " + e.getMessage());
         }
+    }
+    public ObjectMapper getMapper() {
+        return this.mapper;
     }
 }
