@@ -69,6 +69,7 @@ public class ExchangeApiClient extends ExchangeDataFetcher {
                 ArrayList<Candlestick> binanceKlineArray = deserializer.deserialize(eachResponse);
                 if (binanceKlineArray != null && !binanceKlineArray.isEmpty()) {
                     fullResponse.add(binanceKlineArray);
+                    System.out.println("Velas obtenidas: " + binanceKlineArray.size());
                     Candlestick lastKline = binanceKlineArray.get(binanceKlineArray.size() - 1);
                     lastKlineTime = lastKline.getKlineCloseTime();
                     saveLastKlineTime();
