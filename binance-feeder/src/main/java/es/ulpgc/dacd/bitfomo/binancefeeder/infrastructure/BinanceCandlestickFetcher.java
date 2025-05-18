@@ -35,43 +35,37 @@ public class BinanceCandlestickFetcher implements CandlestickFetcher {
 
     @Override
     public List<List<Candlestick>> fetchCandlesticks(long startTime, long endTime) {
-        // Calculamos el tiempo actual en UTC y lo alineamos al minuto más reciente
         long currentTime = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
-        currentTime = (currentTime / (60 * 1000L)) * (60 * 1000L); // Alineamos al minuto completo
-
-        // Calculamos endDateTime como el minuto actual
+        currentTime = (currentTime / (60 * 1000L)) * (60 * 1000L);
         this.endDateTime = (endTime == 0) ? currentTime : endTime;
 
-        // Calculamos startDateTime como 5 minutos antes de endDateTime
-        if (startTime == 0) {
-            long lastKlineTime = timeManager.loadLastKlineTime();
-            if (lastKlineTime == -1) {
-                startDateTime = endDateTime - (5 * 60 * 1000L); // 5 minutos atrás
-            } else {
-                startDateTime = lastKlineTime + 1;
-            }
+        long lastKlineTime = timeManager.loadLastKlineTime();
+        if (lastKlineTime == -1) {
+            this.startDateTime = endDateTime - 3600000;
         } else {
-            startDateTime = startTime;
+            this.startDateTime = lastKlineTime + 1;
         }
 
-        // Aseguramos que startDateTime sea menor que endDateTime
-        if (startDateTime >= endDateTime) {
-            startDateTime = endDateTime - (5 * 60 * 1000L); // Retrocedemos 5 minutos
+        if (startTime != 0) {
+            this.startDateTime = startTime;
+        }
+
+        if (this.startDateTime >= this.endDateTime) {
+            this.startDateTime = this.endDateTime - 3600000;
         }
 
         List<List<Candlestick>> fullResponse = new ArrayList<>();
-        int maxIterations = calculateMaxIterations();
-        fetchCandlesticksIteratively(fullResponse, maxIterations);
+        fetchCandlesticksIteratively(fullResponse);
         return fullResponse;
     }
 
     public long getInitialStartDateTime() {
         if (startDateTime == 0) {
             long currentTime = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli();
-            currentTime = (currentTime / (60 * 1000L)) * (60 * 1000L); // Alineamos al minuto completo
+            currentTime = (currentTime / (60 * 1000L)) * (60 * 1000L);
             long lastKlineTime = timeManager.loadLastKlineTime();
             if (lastKlineTime == -1) {
-                return currentTime - (5 * 60 * 1000L); // 5 minutos atrás
+                return currentTime - 3600000;
             } else {
                 return lastKlineTime + 1;
             }
@@ -79,33 +73,26 @@ public class BinanceCandlestickFetcher implements CandlestickFetcher {
         return startDateTime;
     }
 
-    private int calculateMaxIterations() {
-        return (int) ((endDateTime - startDateTime) / intervalMillis);
-    }
-
-    private void fetchCandlesticksIteratively(List<List<Candlestick>> fullResponse, int maxIterations) {
-        for (int i = 0; i < maxIterations; i++) {
-            List<Candlestick> candlesticks = fetchSingleBatch();
-            if (candlesticks.isEmpty()) {
-                // Si no hay datos, retrocedemos startDateTime y persistimos el cambio
-                startDateTime -= (5 * 60 * 1000L); // Retrocedemos 5 minutos
-                if (startDateTime < 0) break; // Evitamos timestamps negativos
-                timeManager.saveLastKlineTime(startDateTime - 1); // Persistimos el nuevo startDateTime
-                continue;
+    private void fetchCandlesticksIteratively(List<List<Candlestick>> fullResponse) {
+        long currentStartTime = startDateTime;
+        while (currentStartTime < endDateTime) {
+            List<Candlestick> candlesticks = fetchSingleBatch(currentStartTime, endDateTime);
+            if (!candlesticks.isEmpty()) {
+                fullResponse.add(candlesticks);
+                updateStartDateTime(candlesticks);
+                currentStartTime = startDateTime;
+            } else {
+                break;
             }
-            fullResponse.add(candlesticks);
-            updateStartDateTime(candlesticks);
-            break; // Salimos después de encontrar el primer lote válido
         }
     }
 
-    private List<Candlestick> fetchSingleBatch() {
+    private List<Candlestick> fetchSingleBatch(long startTime, long endTime) {
         if (httpClient instanceof BinanceHttpClient) {
-            ((BinanceHttpClient) httpClient).setTimeRange(startDateTime, endDateTime);
+            ((BinanceHttpClient) httpClient).setTimeRange(startTime, endTime);
         }
         String json = fetchJsonData();
         if (json == null || json.isEmpty()) return new ArrayList<>();
-        System.out.println("JSON recibido: " + json);
         List<Candlestick> candlesticks = parser.parseCandlesticks(json);
         return candlesticks.isEmpty() ? new ArrayList<>() : candlesticks;
     }
@@ -114,7 +101,6 @@ public class BinanceCandlestickFetcher implements CandlestickFetcher {
         try {
             return httpClient.sendRequest().body();
         } catch (Exception e) {
-            System.err.println("Error fetching data: " + e.getMessage());
             return null;
         }
     }

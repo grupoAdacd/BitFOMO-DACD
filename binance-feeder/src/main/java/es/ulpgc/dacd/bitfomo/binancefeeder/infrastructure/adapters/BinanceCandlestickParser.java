@@ -20,14 +20,12 @@ public class BinanceCandlestickParser implements CandlestickParser {
     public List<Candlestick> parseCandlesticks(String json) {
         this.currentJson = json;
         if (json == null || json.isEmpty() || json.trim().equals("[]")) {
-            System.out.println("JSON vacío o array vacío recibido");
             return new ArrayList<>();
         }
         try {
             JsonParserProvider parser = new BinanceJsonParser(json);
             JSONArray array = parser.parseArray();
             if (array.length() == 0) {
-                System.out.println("Array de candlesticks vacío");
                 return new ArrayList<>();
             }
             List<Candlestick> candlesticks = new ArrayList<>();
@@ -36,7 +34,6 @@ public class BinanceCandlestickParser implements CandlestickParser {
             }
             return candlesticks;
         } catch (Exception e) {
-            System.err.println("Error parseando candlesticks: " + e.getMessage());
             return new ArrayList<>();
         }
     }
