@@ -1,10 +1,10 @@
-package es.ulpgc.dacd.bitfomo.businessunit.domain;
+package es.ulpgc.dacd.bitfomo.businessunit2.domain;
 
-import es.ulpgc.dacd.bitfomo.businessunit.adapters.ActiveMQListener;
-import es.ulpgc.dacd.bitfomo.businessunit.adapters.EventFileReader;
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.CLIUserInterface;
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.Deduplicator;
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.SentimentAnalyzer;
+import es.ulpgc.dacd.bitfomo.businessunit2.adapters.ActiveMQListener;
+import es.ulpgc.dacd.bitfomo.businessunit2.adapters.EventFileReader;
+import es.ulpgc.dacd.bitfomo.businessunit2.infrastructure.CLIUserInterface;
+import es.ulpgc.dacd.bitfomo.businessunit2.infrastructure.Deduplicator;
+import es.ulpgc.dacd.bitfomo.businessunit2.infrastructure.SentimentAnalyzer;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

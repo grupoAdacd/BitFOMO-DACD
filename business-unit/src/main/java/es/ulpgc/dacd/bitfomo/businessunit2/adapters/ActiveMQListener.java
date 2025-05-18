@@ -1,6 +1,6 @@
-package es.ulpgc.dacd.bitfomo.businessunit.adapters;
+package es.ulpgc.dacd.bitfomo.businessunit2.adapters;
 
-import es.ulpgc.dacd.bitfomo.businessunit.domain.DatamartEnsembler;
+import es.ulpgc.dacd.bitfomo.businessunit2.domain.DatamartEnsembler;
 import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.json.JSONObject;

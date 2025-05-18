@@ -1,4 +1,4 @@
-package es.ulpgc.dacd.bitfomo.businessunit.infrastructure;
+package es.ulpgc.dacd.bitfomo.businessunit2.infrastructure;
 
 import java.io.BufferedReader;
 import java.io.File;

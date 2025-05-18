@@ -1,7 +1,7 @@
-package es.ulpgc.dacd.bitfomo.businessunit.domain;
+package es.ulpgc.dacd.bitfomo.businessunit2.domain;
 
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.Deduplicator;
-import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.SentimentAnalyzer;
+import es.ulpgc.dacd.bitfomo.businessunit2.infrastructure.Deduplicator;
+import es.ulpgc.dacd.bitfomo.businessunit2.infrastructure.SentimentAnalyzer;
 import org.json.JSONObject;
 
 import java.io.FileWriter;

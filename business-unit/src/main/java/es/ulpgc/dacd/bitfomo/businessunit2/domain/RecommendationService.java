@@ -1,4 +1,4 @@
-package es.ulpgc.dacd.bitfomo.businessunit.domain;
+package es.ulpgc.dacd.bitfomo.businessunit2.domain;
 
 public class RecommendationService {
 
