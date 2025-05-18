@@ -1,14 +1,14 @@
-import com.bitfomo.domain.CandlestickData;
+import es.ulpgc.dacd.bitfomo.binancefeeder.domain.Candlestick;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import com.bitfomo.transformer.CandlestickSerializer;
+import es.ulpgc.dacd.bitfomo.binancefeeder.transformer.CandlestickSerializer;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CandlestickSerializerTest {
 
     private CandlestickSerializer serializer;
-    private CandlestickData sampleCandlestick;
+    private Candlestick sampleCandlestick;
     private final long klineOpenTime = 1620000000000L;
     private final String openPrice = "50000.00";
     private final String highPrice = "51000.00";
@@ -21,7 +21,7 @@ public class CandlestickSerializerTest {
     @BeforeEach
     public void setUp() {
         serializer = new CandlestickSerializer();
-        sampleCandlestick = new CandlestickData(
+        sampleCandlestick = new Candlestick(
                 klineOpenTime,
                 openPrice,
                 highPrice,
@@ -66,7 +66,7 @@ public class CandlestickSerializerTest {
     }
     @Test
     public void testSerializeMultipleInstances() {
-        CandlestickData secondCandlestick = new CandlestickData(
+        Candlestick secondCandlestick = new Candlestick(
                 klineOpenTime + 3600000,
                 "51000.00",
                 "52000.00",
