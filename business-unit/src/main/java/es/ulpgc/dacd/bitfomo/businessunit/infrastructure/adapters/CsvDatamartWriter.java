@@ -5,6 +5,7 @@ import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.DatamartWriter;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Locale;
 
 public class CsvDatamartWriter implements DatamartWriter {
     private final String csvPath;
@@ -21,7 +22,7 @@ public class CsvDatamartWriter implements DatamartWriter {
     }
 
     private String formatEntry(DatamartEntry entry) {
-        return String.format("%d,%.2f,%.2f,%.2f%n",
+        return String.format(Locale.US, "%d,%.2f,%.2f,%.2f%n",
                 entry.ts().toEpochMilli(), entry.sentiment(), entry.openPrice(), entry.closePrice());
     }
 

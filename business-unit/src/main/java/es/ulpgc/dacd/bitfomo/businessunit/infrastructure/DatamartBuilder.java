@@ -6,7 +6,9 @@ import es.ulpgc.dacd.bitfomo.businessunit.domain.RedditEvent;
 import es.ulpgc.dacd.bitfomo.businessunit.infrastructure.ports.DatamartWriter;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class DatamartBuilder {
@@ -14,6 +16,7 @@ public class DatamartBuilder {
     private final BinanceEventProcessor binanceProcessor;
     private final DatamartWriter writer;
     private final long twoDaysMillis = TimeUnit.DAYS.toMillis(2);
+    private final Set<Instant> processedRedditTimestamps = new HashSet<>();
 
     public DatamartBuilder(RedditEventProcessor redditProcessor, BinanceEventProcessor binanceProcessor, DatamartWriter writer) {
         this.redditProcessor = redditProcessor;
@@ -39,13 +42,18 @@ public class DatamartBuilder {
     }
 
     private void processRedditEvent(RedditEvent redditEvent, Map<Instant, BinanceEvent> binanceEvents, Instant timeThreshold) {
-        if (!redditEvent.ts().isAfter(timeThreshold)) return;
+        if (!redditEvent.ts().isAfter(timeThreshold) || processedRedditTimestamps.contains(redditEvent.ts())) return;
         BinanceEvent closestBinance = findClosestBinance(redditEvent.ts(), binanceEvents);
         if (closestBinance != null) {
-            DatamartEntry entry = new DatamartEntry(redditEvent.ts(), redditEvent.sentiment(),
-                    closestBinance.openPrice(), closestBinance.closePrice());
-            writer.writeEntry(entry);
+            writeEntry(redditEvent, closestBinance);
+            processedRedditTimestamps.add(redditEvent.ts());
         }
+    }
+
+    private void writeEntry(RedditEvent redditEvent, BinanceEvent closestBinance) {
+        DatamartEntry entry = new DatamartEntry(redditEvent.ts(), redditEvent.sentiment(),
+                closestBinance.openPrice(), closestBinance.closePrice());
+        writer.writeEntry(entry);
     }
 
     private BinanceEvent findClosestBinance(Instant redditTs, Map<Instant, BinanceEvent> binanceEvents) {

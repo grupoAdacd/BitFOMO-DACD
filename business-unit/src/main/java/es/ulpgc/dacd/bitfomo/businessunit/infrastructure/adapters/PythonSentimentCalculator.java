@@ -10,6 +10,7 @@ public class PythonSentimentCalculator implements SentimentCalculator {
 
     public double calculateSentiment(String text) {
         if (text == null || text.trim().isEmpty()) {
+            System.out.println("Texto vacío, retornando 0.0");
             return 0.0;
         }
         Process process = startProcess();
@@ -35,6 +36,7 @@ public class PythonSentimentCalculator implements SentimentCalculator {
 
     private void writeInput(Process process, String text) {
         try (OutputStreamWriter writer = new OutputStreamWriter(process.getOutputStream())) {
+            System.out.println("Enviando texto al script: " + text);
             writer.write(text);
             writer.flush();
         } catch (IOException e) {
@@ -46,7 +48,9 @@ public class PythonSentimentCalculator implements SentimentCalculator {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line = reader.readLine();
             process.waitFor();
-            return line != null ? Double.parseDouble(line.trim()) : 0.0;
+            double result = line != null ? Double.parseDouble(line.trim()) : 0.0;
+            System.out.println("Resultado del script: " + result);
+            return result;
         } catch (Exception e) {
             System.err.println("Error leyendo salida del script: " + e.getMessage());
             return 0.0;
