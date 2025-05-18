@@ -1,0 +1,10 @@
+com\bitfomo\businessunit\domain\BusinessUnitServicePort.class
+com\bitfomo\businessunit\adapters\FileEventStoreReader.class
+com\bitfomo\businessunit\ui\CliUserInterface.class
+com\bitfomo\businessunit\adapters\ActiveMQMessageConsumer.class
+com\bitfomo\Main.class
+com\bitfomo\businessunit\application\BusinessUnitService.class
+com\bitfomo\businessunit\domain\MessageConsumerPort.class
+com\bitfomo\businessunit\domain\DatamartPort.class
+com\bitfomo\businessunit\domain\EventStoreReaderPort.class
+com\bitfomo\businessunit\adapters\CsvDatamart.class
